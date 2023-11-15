@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/inicio.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <title>Pagina Principal</title>
+</head>
+
+<body>
+     <div class="scroll">
+    
+        <div class="cabezera">
+            <a href="inicio.html" class="muelassist">Muelassist</a>
+            <img src="../static/img/diente.png" id="icon">
+            <div class="menu">
+                <a href="{{url_for('login')}}">Iniciar Sesion</a>
+                <a href="{{url_for('sucursales')}}">Surcursales</a>
+            </div>
+        </div>        
+
+         <div class="cajaext">
+         <div class="cajaBienvenido">
+         <div>
+            <h2 class="titulo">Bienvenido a Muelassist</h2>
+            <h3>Consigue tu sonrisa perfecta en nuestro consultorio,<br> 
+            donde nuestro equipo de profesionales cualificados te ayudará a <br> 
+            conseguir resultados sorprendentes. 
+            <br>¡No esperes más para agendar tu cita!</h3>
+          </div>
+         <div class="caja">
+         <div class="citasMensuales">
+            <h2>100</h2>
+            <p>Citas mensuales aproximadas</p>
+        </div>
+        <div class="citasMensuales">
+            <h2>150</h2>
+            <p>Tratamientos exitosos</p>
+        </div>
+        <div class="citasMensuales">
+            <h2>25</h2>
+            <p>Dentistas profesionales</p>
+        </div>
+     </div>
+     </div>
+     </div>
+    
+     <div class="login">
+        <h2 id="sesion">¿No tienes cuenta?</h2>
+
+        <p class=texto1>!!!Crea tu cuenta ahora mismo!!!.</p>
+        <p class=texto1>Esto te permitira agendar citas, cancelar citas, tener un perfil medico y mucho mas,<br>solo da clic al boton al siguiente boton.</p>
+        <div>
+        </div>
+        <div>
+
+    <a href="{{url_for('login')}}" class="enlace-personalizado">
+    <button class="login-button" id="signup-button" >Registrarse</button>
+    </a>
+        </div>
+     </div>
+
+     <div class="citas">
+        <h1 class="cuida">Cuida tu sonrisa,Cuida tu vida.</h1>
+        <div >
+            <button class="agendar-cita-button" id="agendar-cita-button">Agendar Cita</button>
+        </div>
+     </div>
+     <div class="sucursales-contacto">
+        <h1 class="title-suc-cont">Surcursales y Contacto</h1>
+        <div class="info">
+        <p>Tenemos sucursales en varias ciudades para ofrecerte<br> 
+        la mejor atención donde sea que te encuentres.<br> 
+        No dudes en contactarnos para más información sobre horarios, ubicaciones y servicios.<br>
+        Nuestro equipo de atención al cliente está disponible para responder tus preguntas y ayudarte a encontrar la sucursal más cercana
+    </p>
+        </div>
+     </div>
+     <div class="footer">
+        <a href="https://www.facebook.com" target="_blank">
+            <i class="fa-brands fa-facebook mi-icono" style="color: #56baed;"></i>
+          </a>
+
+          <a href="https://www.instagram.com" target="_blank">
+            <i class="fa-brands fa-square-instagram mi-icono" style="color: #56baed;"></i> 
+          </a>
+
+          <a href="https://www.tiktok.com" target="_blank">
+            <i class="fa-brands fa-tiktok mi-icono" style="color: #56baed;"></i>
+          </a>
+
+          <a href="https://www.google.com/maps/place/University+Centre+Of+Economic+And+Administrative+Sciences/@20.7438539,-103.3945287,15z/data=!4m6!3m5!1s0x8428afeb8049f335:0xc047ef950ecb0597!8m2!3d20.7407682!4d-103.380921!16s%2Fm%2F025wqj3?entry=ttu" target="_blank">
+            <i class="fa-solid fa-location-dot mi-icono" style="color: #56baed;"></i>
+          </a>
+          
+        <p>© 2023 MuelAssist, Todos los derechos reservados.</p>
+     </div>
+     </div>
+    
+    
+     <script>
+        // Obtén los botones por sus identificadores
+        const loginButton = document.getElementById("login-button");
+        const signupButton = document.getElementById("signup-button");
+        const citabutton = document.getElementById("agendar-cita-button");
+    
+        // Agrega un manejador de eventos al botón de inicio de sesión
+        loginButton.addEventListener("click", function() {
+            window.location.href = "log_in.html";
+        });
+        // Agrega un manejador de eventos al botón de registro
+        signupButton.addEventListener("click", function() {
+            window.location.href = "sign_up.html";
+        });
+
+        citabutton.addEventListener("click", function() {
+            window.location.href = "agendar_citas.html";
+        });
+      </script>
+      
+    
+    
+</body>
+
+</html>

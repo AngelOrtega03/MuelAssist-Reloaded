@@ -1,0 +1,243 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header button:hover {
+    text-decoration: underline;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    color: #fff;
+    border-radius: 5px;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    ;
+}
+
+.menu a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.menu a:hover {
+    text-decoration: underline;
+}
+
+.menu-items.active {
+    display: block;
+}
+
+.hamburger {
+    cursor: pointer;
+    margin-top: 40px;
+    margin-right: 625px;
+}
+
+.bar {
+    width: 30px;
+    height: 3px;
+    background-color: #333;
+    margin: 5px 0;
+}
+
+.menu-items {
+    list-style: none;
+    padding: 0;
+    margin: 20;
+    display: none;
+}
+
+.menu-items li {
+    margin: 5px 0;
+}
+
+.menu-items a {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+}
+
+.logo {
+    position: absolute;
+    top: 27px; 
+    right: 1170px;
+    width: 100px; 
+    height: auto; 
+}
+
+.logo-profile {
+    position: absolute;
+    top: 35px; 
+    right: 670px;
+    width: 30px; 
+    height: auto;  
+}
+
+.content {
+    background-color: #bacec2; /* Fondo blanco para el contenido */
+    padding: 20px; /* Añade espacio alrededor del contenido */
+    position: absolute;
+    top: 60%;
+    left: 50%; /* Lo mueve al 50% del eje horizontal */
+    transform: translate(-50%, -50%); /* Lo centra correctamente */
+    text-align: left; /* Centra el contenido horizontalmente */
+    width: 80%; /* Ajusta el ancho según tus preferencias */
+    max-width: 600px; /* Ajusta el ancho máximo según tus preferencias */
+}
+
+.content a {
+    text-decoration: none; /* Quita el subrayado del enlace */
+    color: #333; /* Color del enlace */
+}
+
+.content h1 {
+    font-size: 24px; /* Tamaño del título */
+}
+
+.content p {
+    font-size: 16px; /* Tamaño del párrafo */
+}
+
+.calendar {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.calendar h2 {
+    font-size: 24px;
+    color: #007BFF;
+}
+
+.days {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.day {
+    width: 14%;
+    font-weight: bold;
+}
+
+.dates {
+    display: flex;
+    flex-wrap: wrap;
+    
+}
+
+.dates div {
+    width: 14%;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.date-input {
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.event-form {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.event-time-select {
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.events {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 20px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.event-title-input {
+    margin-top: 5px;
+    width: 100%;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.events ul{
+    color: #0056b3;
+    text-align: center;
+}
+
+.event-form button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
+}
+
+button {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}

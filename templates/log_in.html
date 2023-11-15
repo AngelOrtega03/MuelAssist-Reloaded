@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../static/css/estilo.css">
+<html>
+
+<head></head>
+
+<body>
+
+  <div class="wrapper fadeInDown">
+
+    <div id="FORMULARIO_CONTENIDO">
+
+      <!-- PESTAÑAS -->
+      <h2 class="active" id="iniciar-sesion"> Iniciar Sesion </h2>
+      <h2 class="inactive underlineHover" id="registro-link">Registrarse</h2>
+
+      <!-- ICONO -->
+      <div class="fadeIn first">
+        <img src="../static/img/diente.png" id="icon" />
+      </div>
+
+      <!-- Sección de Inicio de Sesión (pantalla de inicio de sesión) -->
+      <div id="inicio-sesion-seccion">
+        <form action="{{url_for('login')}}" method="POST">
+          <input type="text" id="login" class="fadeIn second" name="login" placeholder="Iniciar Sesion" required>
+          <input type="password" id="password" class="fadeIn third" name="password" placeholder="Contraseña" required>
+          <input type="submit" class="fadeIn fourth" value="Iniciar Sesion">
+        </form>
+        <!-- RECORDAR CONTRASEÑA -->
+        <div id="PIE_PAGINA">
+          <p>{{msg}}</p>
+          <a class="underlineHover" href="#"> Olvidaste tu contraseña?</a>
+        </div>
+      </div>
+
+      <!-- Sección de Registro (pantalla de registro) -->
+      <div id="registro-seccion" style="display: none;">
+        <!-- Contenido de la sección de registro -->
+        <form action="{{url_for('login')}}" method="POST">
+          <input type="text" id="nombre" class="fadeIn second" name="nombre" placeholder="Nombre" required>
+          <input type="text" id="apellido-paterno" class="fadeIn second" name="apellido-paterno" placeholder="Apellido Paterno" required>
+          <input type="text" id="apellido-materno" class="fadeIn second" name="apellido-materno" placeholder="Apellido Materno" required>
+          <input type="text" id="sexo" class="fadeIn second" name="sexo" placeholder="Sexo" required>
+          <div id="fechanacimiento">
+            <label for="dia">Dia:</label>
+            <input type="number" id="dia" name="dia" min="01" max="31">
+            <label for="mes">Mes:</label>
+            <input type="number" id="mes" name="mes" min="01" max="12">
+            <label for="anio">Año:</label>
+            <input type="number" id="anio" name="anio" min="1923" max="2023">
+          </div>
+          <input type="text" id="telefono" class="fadeIn second" name="telefono" placeholder="Número de Teléfono" required>
+          <input type="text" id="correo_electronico_r" class="fadeIn second" name="correo_electronico_r" placeholder="Correo Electronico" required>
+          <input type="password" id="password_r" class="fadeIn second" name="passwordRegistro" placeholder="Contraseña" required>
+          <!-- Puedes agregar más campos aquí -->
+
+          <input type="submit" class="fadeIn fourth" value="Registrarse">
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Obtén referencias a los elementos del botón de registro y las secciones
+    const registroLink = document.getElementById("registro-link");
+    const registroSeccion = document.getElementById("registro-seccion");
+    const inicioSesionSeccion = document.getElementById("inicio-sesion-seccion");
+    const iniciarSesion = document.getElementById("iniciar-sesion");
+
+    // Agrega un controlador de clic al botón de registro
+    registroLink.addEventListener("click", function () {
+      // Muestra la sección de registro
+      registroSeccion.style.display = "block";
+      inicioSesionSeccion.style.display = "none"; // Oculta la sección de inicio de sesión
+      // Cambia el estilo del botón de registro a "activo"
+      registroLink.classList.remove("inactive");
+      registroLink.classList.add("active");
+
+      // Cambia el estilo del botón "Iniciar Sesión" a "inactivo"
+      iniciarSesion.classList.remove("active");
+      iniciarSesion.classList.add("inactive");
+    });
+
+    // Agrega un controlador de clic al botón "Iniciar Sesión" para volver a la pantalla de inicio de sesión
+    iniciarSesion.addEventListener("click", function () {
+      // Muestra la sección de inicio de sesión
+      inicioSesionSeccion.style.display = "block";
+      registroSeccion.style.display = "none"; // Oculta la sección de registro
+      // Cambia el estilo del botón de registro a "inactivo"
+      registroLink.classList.remove("active");
+      registroLink.classList.add("inactive");
+
+      // Cambia el estilo del botón "Iniciar Sesión" a "activo"
+      iniciarSesion.classList.remove("inactive");
+      iniciarSesion.classList.add("active");
+    });
+  </script>
+
+</body>
+
+</html>

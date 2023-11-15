@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/agendar_citas.css">
+    <title>Agendar Citas</title>
+</head>
+<body>
+    <div class="container">
+        <header class="menu">
+            <img src="../static/img/MuelAssist.png" alt="MuelAssist" class="logo">
+            <img src="../static/img/Perfil.png" alt="Foto de perfil" class="logo-profile">
+            <div class="hamburger" id="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+            <ul class="menu-items" id="menuItems">
+                <li><a href="./inicio.html">Inicio</a></li>
+                <li><a href="./contacto.html">Contacto</a></li>
+                <li><a href="./surcursales.html">Sucursales</a></li>
+            </ul>
+        </header>
+
+        <main class="content">
+            <a href="./inicio.html" class="menu-icon">&lt; Volver</a>
+            <div class="calendar">
+                <h2>Calendario de Citas</h2>
+                <div class="header">
+                    <button id="prevMonth">Anterior</button>
+                    <h3 id="currentMonth">Mes de Noviembre 2023</h3>
+                    <button id="nextMonth">Siguiente</button>
+                </div>
+                <div class="days">
+                    <div class="day">Dom</div>
+                    <div class="day">Lun</div>
+                    <div class="day">Mar</div>
+                    <div class="day">Mié</div>
+                    <div class="day">Jue</div>
+                    <div class="day">Vie</div>
+                    <div class="day">Sáb</div>
+                </div>
+                <div class="dates" id="dates"></div>
+            </div>
+            <div class="event-form">
+                <h2>Agendar Cita</h2>
+                <input class="date-input" type="date" id="eventDate">
+                <select class="event-time-select" id="eventTime">
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                </select>
+                <input class="event-title-input" type="text" id="eventTitle" placeholder="Título de la cita">
+                <button id="addEvent">Agregar Cita</button>
+            </div>
+            <div class="events">
+                <h2>Cita Agendada</h2>
+                <ul id="eventList">
+                    <!-- Aquí se listarán las citas agendadas -->
+                </ul>
+            </div>
+        </main>
+    </div>
+    <script src="../static/js/calendario.js"></script>
+    <script src="../static/js/MenuHamburguesa.js"></script>
+</body>
+</html>

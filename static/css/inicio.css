@@ -1,0 +1,360 @@
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+
+
+HTML5 display-role reset for older browsers 
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+body {
+    line-height: 1;
+}
+
+ol, ul{
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+.cabezera {
+    font-size: 16px;
+    font-family: "Inter", "Inter Placeholder", sans-serif;
+    font-weight: 700;
+    box-sizing: border-box;
+    background-color: #56baed;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.muelassist {
+    display: flex;
+    position: relative;
+    font-family: 'Merriweather', serif;
+    font-size: 500%;
+    margin-top: -20px; /* Valor negativo para mover hacia arriba */
+    margin-left: 120px;
+    text-decoration: none;
+    color: #000;
+    cursor: pointer;
+}
+
+
+#icon {
+    display: flex;
+    position: relative;
+    top: -15px; /* Ajusta la cantidad de píxeles para mover hacia arriba */
+    cursor: pointer;
+    max-width: 10%;
+    height: auto;
+  }
+
+.menu {
+    display: flex;
+    text-align: right;
+    font-family: 'Merriweather', serif;
+    font-size: 120%;
+    white-space: pre;
+    gap: 15px;
+    margin-top: -100px; /* Valor negativo para mover hacia arriba */
+    margin-left: 260px;
+    cursor: pointer;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #000; 
+    margin: 5px 0; 
+}
+
+.cajaext{
+    background-color: #ebf2fa;
+}
+
+.cajaBienvenido {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 40px;
+    height: min-content;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding: 100px;
+    position: relative;
+    width: 100%;
+    margin-left: 300px;
+}
+
+.titulo{
+    font-family: "Elsie", sans-serif;
+    font-size: 48px;
+    text-align: left;
+    color: #05668D;
+}
+
+.caja{
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    text-align: center; 
+    width: 33.33%;
+    gap: 40px;
+}
+
+.citasMensuales {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center; 
+    width: 33.33%; 
+    padding: 0;
+}
+
+h3{
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.5em;
+}
+
+.citasMensuales h2 {
+    color: #05668D;
+    font-size: 32px; 
+    margin: 0;
+}
+
+.citasMensuales p {
+    margin: 0; 
+}
+
+.login{
+    align-content: center;
+    align-items: center;
+    background-color: #56baed;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 20px;
+    height: min-content;
+    justify-content: center;
+    overflow: visible;
+    padding: 100px;
+    position: relative;
+    width: 100%;
+    color: #000000;
+    font-weight: 500px;
+}
+
+#sesion{
+    font-family: "Elsie", sans-serif;
+    font-size: 48px;
+    gap: 20px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.login-button{
+    background: #05668d; 
+    color: #ebf2fa; 
+    font-size: 103px;
+    font-weight: 700;
+    padding: 40px 600px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    display: block; 
+    margin: 0 auto; 
+    font-size: 18px; 
+}
+
+.login-button:hover {
+    background-color: #0aacec; /* Cambia a un gris más oscuro al pasar el cursor */
+}
+
+
+
+
+.citas{
+    align-content: center;
+    align-items: center;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 20px;
+    height: min-content;
+    justify-content: center;
+    overflow: visible;
+    padding: 100px;
+    position: relative;
+    width: 100%;
+    color: #A5BE00;
+    font-weight: 500px;
+}
+
+.citas::before {
+    content: "";
+    background-image: url(/Imagenes/Dentista.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: grayscale(100%) brightness(48%) hue-rotate(149deg) saturate(963%) contrast(125%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+.scroll{
+    overflow: hidden;
+}
+
+
+.texto1{
+
+font-size: 1.5em ;
+text-align: center;
+
+
+}
+
+.cuida {
+    font-family: "Elsie", sans-serif;
+    font-size: 70px;
+    line-height: 1.1em;
+    color: aliceblue;
+    text-align: left;
+    display: flex;
+    margin-right: 300px;
+}
+
+.enlace-personalizado {
+    /* Estilos para el enlace */
+    color: #007bff; /* Ejemplo de color de texto */
+    text-decoration: none; /* Elimina el subrayado de enlace */
+    /* Otros estilos para el enlace */
+}
+
+
+.agendar-cita-button {
+    background-color: #333; 
+    color: #fff; 
+    font-size: 103px;
+    font-weight: 700;
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    display: block; 
+    margin: 0 auto; 
+    font-size: 18px; 
+}
+
+.agendar-cita-button:hover {
+    background-color: #222; /* Cambia a un gris más oscuro al pasar el cursor */
+}
+
+.sucursales-contacto{
+    align-content: center;
+    align-items: center;
+    background-color: #ffffff;
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0px;
+    height: min-content;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding: 100px;
+    position: relative;
+    width: 100%;
+}
+
+.title-suc-cont{
+    font-family: "Elsie", sans-serif;
+    font-size: 3rem;
+    color: #000000;
+    text-align:center;
+}
+
+.info{
+    color: #000000;
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    width: 50%; 
+    padding: 0;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 2.5rem;
+    text-align: center;
+}
+
+.footer{
+    align-content: center;
+    align-items: center;
+    background-color: #05668d;
+    display: flex;
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 10px;
+    height: min-content;
+    justify-content: center;
+    overflow: hidden;
+    padding: 100px;
+    position: relative;
+    width: 100%;
+    font-weight: 500;
+    line-height: 1.5em;
+    color: #fff;
+    text-align: center;
+}
+
+
+.mi-icono{
+
+    font-size: 4rem;
+    margin-right:40px ;
+
+}

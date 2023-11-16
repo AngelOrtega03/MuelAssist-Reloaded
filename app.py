@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 app.secret_key = 'your secret key'
 
+#Conexion con la base de datos
 app.config['MYSQL_HOST'] = '146.190.218.21'
 app.config['MYSQL_USER'] = 'muelitas'
 app.config['MYSQL_PASSWORD'] = 'CONTRASENIAENMINUSCULAS'
@@ -16,6 +17,8 @@ app.config['MYSQL_DB'] = 'muelassist_sql'
 
 mysql = MySQL(app)
 
+#Rutas de la pagina
+#Ruta raiz
 @app.route('/')
 def start():
     if 'loggedin' in session:
@@ -23,6 +26,7 @@ def start():
     else:
 	    return redirect(url_for('login'))
 
+#Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
     if 'loggedin' in session:
@@ -30,6 +34,7 @@ def inicio():
     else:
         return render_template("inicio.html")
 
+#Ruta pagina de login y registro
 @app.route('/login', methods =['GET', 'POST'])
 def login():
     msg = ''
@@ -61,14 +66,13 @@ def login():
                 return redirect(url_for('agendar'))
             else:
                 msg = 'Usuario no existe.'
-        elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form and 'tipo' in request.form:
+        elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form:
             correo = request.form['correo_electronico_r']
             nombre = request.form['nombre']
             apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
             sexo = request.form['sexo']
             telefono = request.form['telefono']
             password = request.form['passwordRegistro']
-            tipo = request.form['tipo']
             fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
@@ -76,19 +80,79 @@ def login():
             if account:
                 msg = 'Este correo ya esta registrado!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, tipo, ))
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Paciente', ))
                 mysql.connection.commit()
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                 account = cursor.fetchone()
-                if tipo == 'Doctor':
-                    cursor.execute('INSERT INTO doctor (id_usuario) VALUES (%s)', (account['id'],))
-                elif tipo == 'Secretario':
-                    cursor.execute('INSERT INTO paciente (id_usuario) VALUES (%s)', (account['id'],))
                 msg = 'Registro exitoso!'    
         return render_template('log_in.html', msg = msg)
     else:
         return redirect(url_for('agendar'))
 
+#Ruta pagina de registro doctor
+@app.route('/register/doc', methods =['GET', 'POST'])
+def registro_doctor():
+    msg = ''
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    elif 'admin' in session:
+        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form and 'cedula' in request.form:
+            correo = request.form['correo_electronico_r']
+            nombre = request.form['nombre']
+            apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
+            sexo = request.form['sexo']
+            telefono = request.form['telefono']
+            password = request.form['passwordRegistro']
+            fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
+            cedula = request.form['cedula']
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
+            account = cursor.fetchone()
+            if account:
+                msg = 'Este correo ya esta registrado!'
+            else:
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Doctor', ))
+                mysql.connection.commit()
+                cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
+                account = cursor.fetchone()
+                cursor.execute('INSERT INTO doctor (id_usuario, cedula) VALUES (%s)', (account['id'],cedula,))
+                msg = 'Registro exitoso!'    
+        return render_template('registerDoc.html', msg = msg)
+    else:
+        return redirect(url_for('agendar'))
+    
+#Ruta pagina de registro secretario
+@app.route('/register/sec', methods =['GET', 'POST'])
+def registro_secretario():
+    msg = ''
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    elif 'idDoctor' in session:
+        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form:
+            correo = request.form['correo_electronico_r']
+            nombre = request.form['nombre']
+            apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
+            sexo = request.form['sexo']
+            telefono = request.form['telefono']
+            password = request.form['passwordRegistro']
+            fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
+            account = cursor.fetchone()
+            if account:
+                msg = 'Este correo ya esta registrado!'
+            else:
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Secretario', ))
+                mysql.connection.commit()
+                cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
+                account = cursor.fetchone()
+                cursor.execute('INSERT INTO secretario (id_usuario, id_doctor_afiliado) VALUES (%s)', (account['id'], session['idDoctor'],))
+                msg = 'Registro exitoso!'    
+        return render_template('registerSec.html', msg = msg)
+    else:
+        return redirect(url_for('agendar'))
+
+#Ruta pagina de sucursales
 @app.route('/sucursales')
 def sucursales():
     if 'loggedin' not in session:
@@ -96,6 +160,7 @@ def sucursales():
     else:
         return render_template("sucursales.html")
 
+#Ruta pagina de contactos
 @app.route('/contacto')
 def contacto():
     if 'loggedin' not in session:
@@ -103,13 +168,17 @@ def contacto():
     else:
         return render_template("contacto.html")
 
+#Ruta de agenda de citas
 @app.route('/agendar')
 def agendar():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
+    #elif 'idPaciente' in session or 'idDoctor' in session or 'admin' in session:
+    #    if request.method == 'POST' and 'anio' in request.form and 'mes' in request.form and 'dia' in request.form and
     else:
         return render_template("agendar_citas.html")
 
+#Ruta de visualizacion general de expedientes
 @app.route('/expedientes')
 def expedientes():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -129,7 +198,8 @@ def expedientes():
         expedientes = cursor.fetchall()
     return render_template('expedientes.html', expedientes = expedientes)
 
-@app.route('/crearexpediente')
+#Ruta de creacion de expediente
+@app.route('/crearexpediente', methods =['GET', 'POST'])
 def expedientes():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
@@ -149,6 +219,7 @@ def expedientes():
     pacientes = cursor.fetchall()
     return render_template('expedientes.html', pacientes = pacientes)
 
+#Ruta de visualizacion individual de expediente
 @app.route('/expediente/<id>')
 def visualizacion_expediente(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -167,6 +238,7 @@ def visualizacion_expediente(id):
         expediente = cursor.fetchone()
     return render_template('expediente_visualizacion.html', expediente = expediente)
 
+#Ruta de cambios hechos al expediente
 @app.route('/expediente/<id>/cambios')
 def cambios_expediente(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -185,7 +257,8 @@ def cambios_expediente(id):
         cambios = cursor.fetchall()
     return render_template('expediente_cambios.html', cambios = cambios)
 
-@app.route('/expediente/<id>/editar')
+#Ruta de edicion al expediente
+@app.route('/expediente/<id>/editar', methods =['GET', 'POST'])
 def editar_expediente(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     flag = False
@@ -214,6 +287,7 @@ def editar_expediente(id):
             return redirect(url_for('expedientes'))
     return render_template('expediente_editar.html', expediente = expediente)
 
+#Ruta de cerrar sesion
 @app.route('/logout')
 def logout():
     session.pop('loggedin', None)

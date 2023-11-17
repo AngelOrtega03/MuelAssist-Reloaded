@@ -21,18 +21,18 @@ mysql = MySQL(app)
 #Ruta raiz
 @app.route('/')
 def start():
-    if 'loggedin' in session:
-        return redirect(url_for('agendar'))
+    if 'loggedin' not in session:
+        return redirect(url_for('inicio'))
     else:
-	    return redirect(url_for('login'))
+	    return redirect(url_for('agendar'))
 
 #Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
-    if 'loggedin' in session:
-        return redirect(url_for('agendar'))
-    else:
+    if 'loggedin' not in session:
         return render_template("inicio.html")
+    else:
+        return redirect(url_for('agendar'))
 
 #Ruta pagina de login y registro
 @app.route('/login', methods =['GET', 'POST'])
@@ -200,7 +200,7 @@ def expedientes():
 
 #Ruta de creacion de expediente
 @app.route('/crearexpediente', methods =['GET', 'POST'])
-def expedientes():
+def crearexpediente():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))

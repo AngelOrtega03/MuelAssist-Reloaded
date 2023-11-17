@@ -1,1 +1,22 @@
 Aquí agreguen sus htmls
+
+Se necesitan los siguientes HTML'S de las siguientes funciones:
+-Pagina de inicio
+-Login
+-Registro
+-Registro doctor
+-Registro secretario
+-Agenda de citas
+-Agendar citas
+-Visualizacion de cita individual
+-Informacion de perfil
+-Edicion de informacion de perfil
+-Visualizacion de expedientes
+-Visualizacion de expediente individual
+-Edicion de expediente
+-Pagina de error
+
+Hasta ahora, solo tenemos:
+-Pagian de inicio
+-Login
+-Registro

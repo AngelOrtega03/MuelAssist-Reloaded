@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
-import re
+from assets.passcheck import password_check
 
 
 app = Flask(__name__)
@@ -79,6 +79,8 @@ def login():
             account = cursor.fetchone()
             if account:
                 msg = 'Este correo ya esta registrado!'
+            elif password_check(password) == False:
+                msg = 'Contraseña no valida!'
             else:
                 cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Paciente', ))
                 mysql.connection.commit()
@@ -152,17 +154,6 @@ def registro_secretario():
     else:
         return redirect(url_for('agendar'))
 
-#Ruta pagina de sucursales
-@app.route('/sucursales')
-def sucursales():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-    else:
-        cursor.execute('SELECT * FROM sucursal')
-        sucursales = cursor.fetchall()
-        return render_template("sucursales.html", sucursales = sucursales)
-
 #Ruta pagina de contactos
 @app.route('/contacto', methods =['GET', 'POST'])
 def contacto():
@@ -188,7 +179,7 @@ def visualizacioncontacto(id):
         contacto = cursor.fetchone()
         tipoContacto = contacto['tipo']
         if 'idPaciente' in session and tipoContacto == 'Paciente':
-            return redirect(url_for('paginaError'))
+            return redirect(url_for('Error'))
         return render_template("contacto.html", contacto = contacto)
 
 #Ruta pagina de informacion de perfil
@@ -260,7 +251,7 @@ def agendar():
             if existencia:
                 msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
             else:
-                cursor.execute('INSERT INTO cita(id_sucursal, id_doctor, id_paciente, fecha_hora, estado) VALUES (%s, %s, %s, %s, %s)', (1, id_doctor, id_paciente, fecha_hora, estado,))
+                cursor.execute('INSERT INTO cita(id_doctor, id_paciente, fecha_hora, estado) VALUES (%s, %s, %s, %s)', (id_doctor, id_paciente, fecha_hora, estado,))
                 mysql.connection.commit()
                 msg = 'Cita registrada con exito!'
     return render_template("agendar_citas.html", msg = msg, doctores = doctores, pacientes = pacientes)
@@ -450,7 +441,7 @@ def visualizacion_expediente(id):
         if(permiso):
             flag = True
         else:
-            return redirect(url_for('expedientes'))
+            return redirect(url_for('Error'))
     if flag or 'admin' in session:
         cursor.execute('SELECT * FROM expediente WHERE id = %s', (id,))
         expediente = cursor.fetchone()
@@ -504,6 +495,11 @@ def editar_expediente(id):
             print('Cambio registrado con exito!')
             return redirect(url_for('expedientes'))
     return render_template('expediente_editar.html', expediente = expediente)
+
+#Ruta de pagina de error
+@app.route('/error')
+def Error():
+    return render_template('error.html')
 
 #Ruta de cerrar sesion
 @app.route('/logout')

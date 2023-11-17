@@ -155,18 +155,76 @@ def registro_secretario():
 #Ruta pagina de sucursales
 @app.route('/sucursales')
 def sucursales():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
-        return render_template("sucursales.html")
+        cursor.execute('SELECT * FROM sucursal')
+        sucursales = cursor.fetchall()
+        return render_template("sucursales.html", sucursales = sucursales)
 
 #Ruta pagina de contactos
-@app.route('/contacto')
+@app.route('/contacto', methods =['GET', 'POST'])
 def contacto():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
-        return render_template("contacto.html")
+        if request.method == 'POST' and 'nombre' in request.form and 'tipo' in request.form:
+            nombre = request.form['nombre']
+            tipo = request.form['tipo']
+            cursor.execute('SELECT * FROM usuario WHERE nombre = %s AND tipo = %s', (nombre, tipo,))
+            contactos = cursor.fetchall()
+        return render_template("contacto.html", contactos = contactos)
+    
+#Ruta pagina de contacto especifico
+@app.route('/contacto/<id>')
+def visualizacioncontacto(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    else:
+        cursor.execute('SELECT * FROM usuario WHERE id = %s', (id,))
+        contacto = cursor.fetchone()
+        tipoContacto = contacto['tipo']
+        if 'idPaciente' in session and tipoContacto == 'Paciente':
+            return redirect(url_for('paginaError'))
+        return render_template("contacto.html", contacto = contacto)
+
+#Ruta pagina de informacion de perfil
+@app.route('/perfil')
+def perfil():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    else:
+        cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
+        perfil = cursor.fetchone()
+        return render_template("perfil.html", perfil = perfil)
+
+#Ruta pagina de edicion de informacion de perfil
+@app.route('/perfil/editar', methods =['GET', 'POST'])
+def editarperfil():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    elif request.method == 'POST' and 'nombre' in request.form and 'apellido' in request.form and 'sexo' in request.form and 'fecha_nacimiento' in request.form and 'telefono' in request.form and 'correo' in request.form and 'contrasenia' in request.form: 
+        nombre = request.form['nombre']
+        apellido = request.form['apellido']
+        sexo = request.form['sexo']
+        fecha_nacimiento = request.form['fecha_nacimiento']
+        telefono = request.form['telefono']
+        contrasenia = request.form['contrasenia']
+        cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, sexo = %s, fecha_nacimiento = %s, telefono = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, sexo, fecha_nacimiento, telefono, contrasenia, session['id'],))
+        mysql.connection.commit()
+        if 'idDoctor' in session:
+            cedula = request.form['cedula']
+            cursor.execute('UPDATE doctor SET cedula = %s WHERE id = %s', (cedula, session['idDoctor'],))
+            mysql.connection.commit()
+        print('Datos actualizados!')
+    cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
+    perfil = cursor.fetchone()
+    return render_template("editarperfil.html", perfil = perfil)
 
 #Ruta de agenda de citas
 @app.route('/agendar')
@@ -201,6 +259,7 @@ def expedientes():
 #Ruta de creacion de expediente
 @app.route('/crearexpediente', methods =['GET', 'POST'])
 def crearexpediente():
+    msg = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -211,13 +270,18 @@ def crearexpediente():
             info = request.form['info']
             tipo_sangre = request.form['tipo_sangre']
             alergias = request.form['alergias']
+            cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s', (id_paciente,))
+            existencia = cursor.fetchone()
+            if existencia:
+                print('Este usuario ya tiene un expediente registrado!')
+                return render_template('expediente_crear.html', msg = msg)
             cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info, tipo_sangre, alergias) VALUES (%s, %s, %s, %s, %s)',(id_paciente, session['idDoctor'], info, tipo_sangre, alergias,))
             mysql.connection.commit()
             print('Expediente registrado con exito!')
             return redirect(url_for('expedientes'))
     cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)',(session['idDoctor'],))
     pacientes = cursor.fetchall()
-    return render_template('expedientes.html', pacientes = pacientes)
+    return render_template('expediente_crear.html', pacientes = pacientes, msg = msg)
 
 #Ruta de visualizacion individual de expediente
 @app.route('/expediente/<id>')

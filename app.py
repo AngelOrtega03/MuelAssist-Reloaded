@@ -214,6 +214,7 @@ def editarperfil():
         sexo = request.form['sexo']
         fecha_nacimiento = request.form['fecha_nacimiento']
         telefono = request.form['telefono']
+        correo = request.form['correo']
         contrasenia = request.form['contrasenia']
         cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, sexo = %s, fecha_nacimiento = %s, telefono = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, sexo, fecha_nacimiento, telefono, contrasenia, session['id'],))
         mysql.connection.commit()
@@ -222,19 +223,172 @@ def editarperfil():
             cursor.execute('UPDATE doctor SET cedula = %s WHERE id = %s', (cedula, session['idDoctor'],))
             mysql.connection.commit()
         print('Datos actualizados!')
+        session['nombre'] = nombre
+        session['apellido'] = apellido
+        session['correo'] = correo
     cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
     perfil = cursor.fetchone()
     return render_template("editarperfil.html", perfil = perfil)
 
-#Ruta de agenda de citas
-@app.route('/agendar')
+#Ruta de pagina para agendar citas
+@app.route('/citas/agendar', methods =['GET', 'POST'])
 def agendar():
+    msg = ''
+    estado = 'En proceso'
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
-    #elif 'idPaciente' in session or 'idDoctor' in session or 'admin' in session:
-    #    if request.method == 'POST' and 'anio' in request.form and 'mes' in request.form and 'dia' in request.form and
     else:
-        return render_template("agendar_citas.html")
+        if 'idPaciente' in session:
+            cursor.execute('SELECT * FROM doctor')
+            doctores = cursor.fetchall()
+            estado = 'Pendiente de revision'
+        elif 'idDoctor' in session:
+            cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)', (session['idDoctor'],))
+            pacientes = cursor.fetchall()
+        elif 'admin' in session:
+            cursor.execute('SELECT * FROM doctor')
+            doctores = cursor.fetchall()
+            cursor.execute('SELECT * FROM usuario')
+            pacientes = cursor.fetchall()
+        if request.method == 'POST' and 'anio' in request.form and 'mes' in request.form and 'dia' in request.form and 'hora' in request.form and 'id_doctor' in request.form and 'id_paciente' in request.form:
+            fecha_hora = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']+' '+request.form['hora']
+            id_doctor = request.form['id_doctor']
+            id_paciente = request.form['id_paciente']
+            cursor.execute('SELECT * FROM cita WHERE (id_doctor = %s OR id_paciente = %s) AND fecha_hora = %s',(id_doctor, id_paciente, fecha_hora,))
+            existencia = cursor.fetchone()
+            if existencia:
+                msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
+            else:
+                cursor.execute('INSERT INTO cita(id_sucursal, id_doctor, id_paciente, fecha_hora, estado) VALUES (%s, %s, %s, %s, %s)', (1, id_doctor, id_paciente, fecha_hora, estado,))
+                mysql.connection.commit()
+                msg = 'Cita registrada con exito!'
+    return render_template("agendar_citas.html", msg = msg, doctores = doctores, pacientes = pacientes)
+
+#Ruta de pagina de visualizacion individual de cita
+@app.route('/citas/<id>', methods =['GET', 'POST'])
+def cita_individual(id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    flag = False
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    else:
+        if 'idPaciente' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s AND id_paciente = %s',(id, session['idPaciente'],))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        elif 'idDoctor' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s AND id_doctor = %s',(id, session['idDoctor'],))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        elif 'admin' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s',(id,))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        if flag == False:
+            return redirect(url_for('Error'))
+    return render_template("cita.html", cita = cita)
+
+#Ruta de pagina de edicion de cita
+@app.route('/citas/<id>/editar', methods =['GET', 'POST'])
+def edicion_cita(id, id_doctor, id_paciente):
+    msg = ''
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    flag = False
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    elif request.method == 'POST' and 'anio' in request.form and 'mes' in request.form and 'dia' in request.form and 'hora' in request.form:
+        fecha_hora = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']+' '+request.form['hora']
+        cursor.execute('SELECT * FROM cita WHERE (id_doctor = %s OR id_paciente = %s) AND fecha_hora = %s',(id_doctor, id_paciente, fecha_hora,))
+        existencia = cursor.fetchone()
+        if existencia:
+            msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
+        else:
+            cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s WHERE id = %s) VALUES (%s, %s, %s)', (fecha_hora, 'Pendiente de revision', id,))
+            mysql.connection.commit()
+            msg = 'Cita actualizada con exito!'
+    else:
+        if 'idPaciente' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s AND id_paciente = %s',(id, session['idPaciente'],))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        elif 'idDoctor' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s AND id_doctor = %s',(id, session['idDoctor'],))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        elif 'admin' in session:
+            cursor.execute('SELECT * FROM cita WHERE id = %s',(id,))
+            cita = cursor.fetchone()
+            if cita:
+                flag = True
+        if flag == False:
+            return redirect(url_for('Error'))
+    return render_template("cita_editar.html", msg = msg, cita = cita)
+
+#Ruta de agenda de citas
+@app.route('/citas')
+def citas():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    elif 'idPaciente' in session:
+        citasPendientes = citasPaciente(session['idPaciente'],'Pendiente de revision')
+        citasVigentes = citasPaciente(session['idPaciente'],'En proceso')
+        citasPasadas = citasPaciente(session['idPaciente'],'Terminada')
+    elif 'idDoctor' in session:
+        citasPendientes = citasDoctor(session['idDoctor'],'Pendiente de revision')
+        citasVigentes = citasDoctor(session['idDoctor'],'En proceso')
+        citasPasadas = citasDoctor(session['idDoctor'],'Terminada')
+    elif 'idSecretario' in session:
+        citasPendientes = citasSecretario(session['idSecretario'],'Pendiente de revision')
+        citasVigentes = citasSecretario(session['idSecretario'],'En proceso')
+        citasPasadas = citasSecretario(session['idSecretario'],'Terminada')
+    elif 'admin' in session:
+        if request.method == 'POST' and 'nombre' in request.form and 'tipo' in request.form:
+            tipo = request.form['tipo']
+            nombre = request.form['nombre']
+            if tipo == 'Doctor':
+                cursor.execute('SELECT id FROM doctor WHERE id_usuario = (SELECT id FROM usuario WHERE nombre = %s)', (nombre,))
+                id = cursor.fetchone()
+                citasPendientes = citasDoctor(id,'Pendiente de revision')
+                citasVigentes = citasDoctor(id,'En proceso')
+                citasPasadas = citasDoctor(id,'Terminada')
+            elif tipo == 'Paciente':
+                cursor.execute('SELECT id FROM usuario WHERE nombre = %s', (nombre,))
+                id = cursor.fetchone()
+                citasPendientes = citasPaciente(id,'Pendiente de revision')
+                citasVigentes = citasPaciente(id,'En proceso')
+                citasPasadas = citasPaciente(id,'Terminada')
+            elif tipo == 'Secretario':
+                cursor.execute('SELECT id FROM secretario WHERE id_usuario = (SELECT id FROM usuario WHERE nombre = %s)', (nombre,))
+                id = cursor.fetchone()
+                citasPendientes = citasSecretario(id,'Pendiente de revision')
+                citasVigentes = citasSecretario(id,'En proceso')
+                citasPasadas = citasSecretario(id,'Terminada')
+    return render_template("citas.html", citasVigentes = citasVigentes, citasPendientes = citasPendientes, citasPasadas = citasPasadas)
+
+def citasPaciente(id,estado):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM cita WHERE id_paciente = %s AND estado = %s', (id, estado,))
+    resultados = cursor.fetchall()
+    return resultados
+
+def citasDoctor(id,estado):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM cita WHERE id_doctor = %s AND estado = %s', (id, estado,))
+    resultados = cursor.fetchall()
+    return resultados
+
+def citasSecretario(id,estado):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM cita WHERE id_secretario = %s AND estado = %s', (id, estado,))
+    resultados = cursor.fetchall()
+    return resultados
 
 #Ruta de visualizacion general de expedientes
 @app.route('/expedientes')

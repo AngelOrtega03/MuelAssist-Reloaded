@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from assets.passcheck import password_check
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -226,26 +227,35 @@ def editarperfil():
 def agendar():
     msg = ''
     estado = 'En proceso'
+    pacientes = ''
+    doctores = ''
+    id_doctor = ''
+    id_paciente = ''
+    fecha_actual = datetime.now().strftime('%Y-%m-%d')
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
         if 'idPaciente' in session:
-            cursor.execute('SELECT * FROM doctor')
+            cursor.execute("SELECT * FROM DoctoresInformacionCompleta")
             doctores = cursor.fetchall()
+            id_paciente = session['idPaciente']
             estado = 'Pendiente de revision'
         elif 'idDoctor' in session:
             cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)', (session['idDoctor'],))
+            id_doctor = session['idDoctor']
             pacientes = cursor.fetchall()
         elif 'admin' in session:
-            cursor.execute('SELECT * FROM doctor')
+            cursor.execute("SELECT * FROM DoctoresInformacionCompleta")
             doctores = cursor.fetchall()
-            cursor.execute('SELECT * FROM usuario')
+            cursor.execute("SELECT * FROM usuario WHERE tipo = 'Paciente'")
             pacientes = cursor.fetchall()
-        if request.method == 'POST' and 'anio' in request.form and 'mes' in request.form and 'dia' in request.form and 'hora' in request.form and 'id_doctor' in request.form and 'id_paciente' in request.form:
-            fecha_hora = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']+' '+request.form['hora']
-            id_doctor = request.form['id_doctor']
-            id_paciente = request.form['id_paciente']
+        if request.method == 'POST' and 'fecha' in request.form and 'hora' in request.form:
+            fecha_hora = request.form['fecha']+' '+request.form['hora']
+            if 'id_doctor' in request.form:
+                id_doctor = request.form['id_doctor']
+            elif 'id_paciente' in request.form:
+                id_paciente = request.form['id_paciente']
             cursor.execute('SELECT * FROM cita WHERE (id_doctor = %s OR id_paciente = %s) AND fecha_hora = %s',(id_doctor, id_paciente, fecha_hora,))
             existencia = cursor.fetchone()
             if existencia:
@@ -254,7 +264,7 @@ def agendar():
                 cursor.execute('INSERT INTO cita(id_doctor, id_paciente, fecha_hora, estado) VALUES (%s, %s, %s, %s)', (id_doctor, id_paciente, fecha_hora, estado,))
                 mysql.connection.commit()
                 msg = 'Cita registrada con exito!'
-    return render_template("agendar_citas.html", msg = msg, doctores = doctores, pacientes = pacientes)
+        return render_template("agendar_cita_2.html", fecha_actual = fecha_actual, msg = msg, doctores = doctores, pacientes = pacientes)
 
 #Ruta de pagina de visualizacion individual de cita
 @app.route('/citas/<id>', methods =['GET', 'POST'])
@@ -500,6 +510,16 @@ def editar_expediente(id):
 @app.route('/error')
 def Error():
     return render_template('error.html')
+
+# Manejador de error 404
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error.html', error_code=404, error_message='Página no encontrada', description='Lo sentimos, la página que buscas no existe.'), 404
+
+# # Manejador de error 403
+# @app.errorhandler(403)
+# def access_forbidden(e):
+#     return render_template('error.html', error_code=403, error_message='Acceso denegado', description='No tienes permiso para acceder a esta página.'), 403
 
 #Ruta de cerrar sesion
 @app.route('/logout')

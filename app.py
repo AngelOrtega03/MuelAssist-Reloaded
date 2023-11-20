@@ -197,6 +197,7 @@ def perfil():
 #Ruta pagina de edicion de informacion de perfil
 @app.route('/perfil/editar', methods =['GET', 'POST'])
 def editarperfil():
+    msg = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -208,19 +209,22 @@ def editarperfil():
         telefono = request.form['telefono']
         correo = request.form['correo']
         contrasenia = request.form['contrasenia']
-        cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, sexo = %s, fecha_nacimiento = %s, telefono = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, sexo, fecha_nacimiento, telefono, contrasenia, session['id'],))
-        mysql.connection.commit()
-        if 'idDoctor' in session:
-            cedula = request.form['cedula']
-            cursor.execute('UPDATE doctor SET cedula = %s WHERE id = %s', (cedula, session['idDoctor'],))
+        if password_check(contrasenia) == False:
+            msg = 'Contraseña no valida!'
+        else:
+            cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, sexo = %s, fecha_nacimiento = %s, telefono = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, sexo, fecha_nacimiento, telefono, contrasenia, session['id'],))
             mysql.connection.commit()
-        print('Datos actualizados!')
-        session['nombre'] = nombre
-        session['apellido'] = apellido
-        session['correo'] = correo
+            if 'idDoctor' in session and 'cedula' in request.form:
+                cedula = request.form['cedula']
+                cursor.execute('UPDATE doctor SET cedula = %s WHERE id = %s', (cedula, session['idDoctor'],))
+                mysql.connection.commit()
+            print('Datos actualizados!')
+            session['nombre'] = nombre
+            session['apellido'] = apellido
+            session['correo'] = correo
     cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
     perfil = cursor.fetchone()
-    return render_template("editarperfil.html", perfil = perfil)
+    return render_template("editarperfil.html", msg = msg, perfil = perfil)
 
 #Ruta de pagina para agendar citas
 @app.route('/citas/agendar', methods =['GET', 'POST'])

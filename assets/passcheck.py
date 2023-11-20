@@ -1,6 +1,7 @@
 import re
 
 def password_check(password):
+    Flag = True
     """
     Verify the strength of 'password'
     Returns a dict indicating the wrong criteria
@@ -13,28 +14,23 @@ def password_check(password):
     """
 
     # calculating the length
-    length_error = len(password) < 8
+    length = len(password) < 8
 
     # searching for digits
-    digit_error = re.search(r"\d", password) is None
+    digit = re.search(r"\d", password)
 
     # searching for uppercase
-    uppercase_error = re.search(r"[A-Z]", password) is None
+    uppercase = re.search(r"[A-Z]", password)
 
     # searching for lowercase
-    lowercase_error = re.search(r"[a-z]", password) is None
+    lowercase = re.search(r"[a-z]", password)
 
     # searching for symbols
-    symbol_error = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+    symbol = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password)
 
     # overall result
-    password_ok = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
-
-    return {
-        False : password_ok,
-        False : length_error,
-        False : digit_error,
-        False : uppercase_error,
-        False : lowercase_error,
-        False : symbol_error,
-    }
+    if length and digit and uppercase and lowercase and symbol:
+        return Flag
+    else:
+        Flag = False
+        return Flag

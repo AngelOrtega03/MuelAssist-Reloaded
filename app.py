@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, abort
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 from assets.passcheck import password_check
@@ -180,7 +180,7 @@ def visualizacioncontacto(id):
         contacto = cursor.fetchone()
         tipoContacto = contacto['tipo']
         if 'idPaciente' in session and tipoContacto == 'Paciente':
-            return redirect(url_for('Error'))
+            abort(404)
         return render_template("contacto.html", contacto = contacto)
 
 #Ruta pagina de informacion de perfil
@@ -290,7 +290,7 @@ def cita_individual(id):
             if cita:
                 flag = True
         if flag == False:
-            return redirect(url_for('Error'))
+            abort(404)
     return render_template("cita.html", cita = cita)
 
 #Ruta de pagina de edicion de cita
@@ -451,7 +451,7 @@ def visualizacion_expediente(id):
         if(permiso):
             flag = True
         else:
-            return redirect(url_for('Error'))
+            abort(404)
     if flag or 'admin' in session:
         cursor.execute('SELECT * FROM expediente WHERE id = %s', (id,))
         expediente = cursor.fetchone()
@@ -590,4 +590,5 @@ def logout():
 #Funciones usuario comun
 
 if __name__ == '__main__':
+    app.register_error_handler(404, page_not_found)
     app.run(debug=True)

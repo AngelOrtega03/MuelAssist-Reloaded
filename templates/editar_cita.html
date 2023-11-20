@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Cita</title>
+</head>
+<!-- 
+    Esto es lo que pienso que se le podria modifidar al app.py en la parte de # Ruta de página de edición de cita
+    @app.route('/citas/<id>/editar', methods=['GET', 'POST'])
+def edicion_cita(id):
+    msg = ''
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    
+    # Verificar si el usuario está logueado
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+    
+    # Obtener la información actual de la cita
+    cursor.execute('SELECT * FROM cita WHERE id = %s', (id,))
+    cita = cursor.fetchone()
+    
+    if request.method == 'POST':
+        fecha_hora = request.form['fecha'] + ' ' + request.form['hora']
+        # Verificar si la nueva fecha y hora están disponibles
+        cursor.execute('SELECT * FROM cita WHERE id != %s AND fecha_hora = %s', (id, fecha_hora,))
+        existencia = cursor.fetchone()
+        
+        if existencia:
+            msg = 'Ya hay una cita establecida en esa hora.'
+        else:
+            # Actualizar la cita
+            cursor.execute('UPDATE cita SET fecha_hora = %s WHERE id = %s', (fecha_hora, id,))
+            mysql.connection.commit()
+            msg = 'Cita actualizada con éxito!'
+            # Recargar la información de la cita después de actualizar
+            cursor.execute('SELECT * FROM cita WHERE id = %s', (id,))
+            cita = cursor.fetchone()
+    
+    return render_template("editar_cita.html", cita=cita, msg=msg)
+ -->
+
+<body>
+    <h1>Editar Cita</h1>
+    {% if msg %}
+        <p>{{ msg }}</p>
+    {% endif %}
+    <form action="" method="post">
+        <div>
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" required min="{{ fecha_actual }}" value="{{ cita.fecha_hora.strftime('%Y-%m-%d') }}">
+        </div>
+        <div>
+            <label for="hora">Hora:</label>
+            <select id="hora" name="hora" required>
+                <option value="08:00">08:00 AM</option>
+                <option value="09:00">09:00 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="11:00">11:00 AM</option>
+                <option value="12:00">12:00 PM</option>
+                <option value="13:00">01:00 PM</option>
+                <option value="14:00">02:00 PM</option>
+                <option value="15:00">03:00 PM</option>
+                <option value="16:00">04:00 PM</option>
+                <option value="17:00">05:00 PM</option>
+                <option value="18:00">06:00 PM</option>
+                <option value="19:00">07:00 PM</option>
+                <option value="20:00">08:00 PM</option>
+            </select>
+        </div>
+        <div>
+            <input type="submit" value="Actualizar Cita">
+        </div>
+    </form>
+</body>
+</html>

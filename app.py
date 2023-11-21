@@ -626,6 +626,6 @@ def logout():
 
 #Funciones usuario comun
 
-if __name__ == '__main__':
-    app.register_error_handler(404, page_not_found)
-    app.run(debug=True)
+#if __name__ == '__main__':
+#    app.register_error_handler(404, page_not_found)
+#    app.run(debug=True)

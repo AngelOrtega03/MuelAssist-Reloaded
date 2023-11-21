@@ -1,0 +1,4 @@
+Flask
+Flask-MySQLdb
+gunicorn
+mysqlclient

@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizacio citas</title>
+    <title>Ver cita</title>
 </head>
 <body>
     <h1>Detalle de la Cita</h1>
     {% if cita %}
-        <p><strong>Doctor:</strong> {{ cita.doctor_nombre }}</p>
-        <p><strong>Paciente:</strong> {{ cita.paciente_nombre }}</p>
+        <p><strong>Doctor:</strong> {{ cita.nombre_doctor }} {{cita.apellido_doctor}}</p>
+        <p><strong>Paciente:</strong> {{ cita.nombre_paciente }} {{cita.apellido_paciente}}</p>
         <p><strong>Fecha y Hora:</strong> {{ cita.fecha_hora }}</p>
         <p><strong>Estado:</strong> {{ cita.estado }}</p>
     {% else %}

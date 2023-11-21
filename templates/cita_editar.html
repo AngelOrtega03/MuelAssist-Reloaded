@@ -44,7 +44,7 @@ def edicion_cita(id):
     {% if msg %}
         <p>{{ msg }}</p>
     {% endif %}
-    <form action="" method="post">
+    <form action="{{url_for('edicion_cita', id=cita.id_cita, id_doctor=cita.id_doctor, id_paciente=cita.id_paciente)}}" method="post">
         <div>
             <label for="fecha">Fecha:</label>
             <input type="date" id="fecha" name="fecha" required min="{{ fecha_actual }}" value="{{ cita.fecha_hora.strftime('%Y-%m-%d') }}">

@@ -403,16 +403,16 @@ def expedientes():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     elif 'idPaciente' in session:
-        cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s', (session['id'],))
+        cursor.execute('SELECT * FROM ExpedientesInformacionCompleta WHERE id_paciente = %s', (session['id'],))
         expedientes = cursor.fetchall()
     elif 'idDoctor' in session:
-        cursor.execute("SELECT * FROM expediente WHERE id_doctor_creador = %s OR id = (SELECT id_expediente FROM permisos_expediente WHERE id_usuario = %s)", (session['idDoctor'],session['id'],))
+        cursor.execute("SELECT * FROM ExpedientesInformacionCompleta WHERE id_doctor_creador = %s OR id_expediente = (SELECT id_expediente FROM permisos_expediente WHERE id_usuario = %s)", (session['idDoctor'],session['id'],))
         expedientes = cursor.fetchall()
     elif 'idSecretario' in session:
-        cursor.execute("SELECT * FROM expediente WHERE id = (SELECT id_expediente FROM permisos_expediente WHERE id_usuario = %s)", (session['id'],))
+        cursor.execute("SELECT * FROM ExpedientesInformacionCompleta WHERE id_expediente = (SELECT id_expediente FROM permisos_expediente WHERE id_usuario = %s)", (session['id'],))
         expedientes = cursor.fetchall()
     elif 'admin' in session:
-        cursor.execute("SELECT * FROM expediente")
+        cursor.execute("SELECT * FROM ExpedientesInformacionCompleta")
         expedientes = cursor.fetchall()
     return render_template('expedientes.html', expedientes = expedientes)
 
@@ -478,18 +478,20 @@ def visualizacion_expediente(id):
     elif 'idPaciente' in session or 'idDoctor' in session or 'idSecretario' in session:
         cursor.execute('SELECT id_usuario FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s', (id, session['id'],))
         permiso = cursor.fetchone()
-        if(permiso):
+        cursor.execute('SELECT id_paciente FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
+        creador = cursor.fetchone()
+        if(permiso or creador):
             flag = True
         else:
             abort(404)
     if flag or 'admin' in session:
-        cursor.execute('SELECT * FROM expediente WHERE id = %s', (id,))
+        cursor.execute('SELECT * FROM ExpedientesInformacionCompleta WHERE id_expediente = %s', (id,))
         expediente = cursor.fetchone()
+        cursor.execute('SELECT * FROM CambiosInformacionCompleta WHERE id_expediente = %s ORDER BY id_cambio DESC', (id,))
+        cambio_reciente = cursor.fetchone()
         f = open(expediente['info'], "r")
         contenido = f.read()
-        cursor.execute('SELECT * FROM usuario WHERE id = %s', (expediente['id_paciente'],))
-        infopaciente = cursor.fethone()
-    return render_template('expediente_visualizacion.html', infopaciente = infopaciente, expediente = contenido)
+    return render_template('expediente_visualizacion.html', cambio_reciente = cambio_reciente, expediente = expediente, contenido = contenido)
 
 #Ruta de cambios hechos al expediente
 @app.route('/expediente/<id>/cambios')
@@ -520,25 +522,28 @@ def editar_expediente(id):
     elif 'idPaciente' in session or 'idDoctor' in session or 'idSecretario' in session:
         cursor.execute("SELECT id_usuario FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s AND tipo_permiso = 'EDITAR'", (id, session['id'],))
         permiso = cursor.fetchone()
-        if(permiso):
+        cursor.execute('SELECT id_paciente FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
+        creador = cursor.fetchone()
+        if(permiso or creador):
             flag = True
         else:
             return redirect(url_for('expedientes'))
     if flag or 'admin' in session:
-        cursor.execute('SELECT * FROM expediente WHERE id = %s', (id,))
+        cursor.execute('SELECT * FROM ExpedientesInformacionCompleta WHERE id_expediente = %s', (id,))
         expediente = cursor.fetchone()
-        if request.method == 'POST' and 'info' in request.form and 'tipo_sangre' in request.form and 'alergias' in request.form and 'comentario' in request.form:
-            info = request.form['info']
-            tipo_sangre = request.form['tipo_sangre']
-            alergias = request.form['alergias']
-            comentario = request.form['comentario']
-            cursor.execute('UPDATE expediente SET info = %s, tipo_sangre = %s, alergias = %s WHERE id = %s', (info, tipo_sangre, alergias, id,))
-            mysql.connection.commit()
-            cursor.execute('INSERT INTO cambios(id_expediente, id_doctor, info) VALUES (%s, %s, %s)', (id, session['idDoctor'], comentario,))
+        f = open(expediente['info'], "r")
+        contenidoleer = f.read()
+        if request.method == 'POST' and 'contenido' in request.form and 'notas' in request.form:
+            contenidoescribir = request.form['contenido']
+            notas = request.form['notas']
+            path = 'static/info/exp'
+            with open(path+str(expediente['id_paciente'])+'.txt', 'w') as f2:
+                f2.write(str(contenidoescribir))
+            cursor.execute('INSERT INTO cambios(id_expediente, id_doctor, info) VALUES (%s, %s, %s)', (id, session['idDoctor'], notas,))
             mysql.connection.commit()
             print('Cambio registrado con exito!')
             return redirect(url_for('expedientes'))
-    return render_template('expediente_editar.html', expediente = expediente)
+    return render_template('expediente_editar.html', expediente = expediente, contenido = contenidoleer)
 
 #Ruta de pagina de error
 @app.route('/error')

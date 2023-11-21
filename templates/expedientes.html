@@ -44,20 +44,26 @@
                 color: #fff;
                 transition: background-color 0.3s, color 0.3s, border-color 0.3s;
             }
+            a {
+                color: inherit;
+                text-decoration:none;
+            }
         </style>
     </head>
     <body>
         <div class="fondo"> 
-            <a class="regresar" href="ALTA_EXPEDIENTE.php">Agregar expediente</a>
+            <a class="regresar" href="{{url_for('crearexpediente')}}">Agregar expediente</a>
+            {% for expediente in expedientes %}
             <div id="expedientes">
                 <!-- Ejemplo de expediente -->
-                <div class="expediente" onclick="verExpediente(1, 'Nombre del Paciente', 'Nombre del Doctor', '2023-01-01 12:00:00')">
-                    <p>ID del Expediente:</p>
-                    <p>Nombre del Paciente: Nombre del Paciente</p>
-                    <p>Doctor: Nombre del Doctor</p>
-                    <p>Fecha y Hora: 2023-01-01 12:00:00</p>
-                </div>
+                <a href="{{url_for('visualizacion_expediente', id=expediente.id_expediente)}}"><div class="expediente">
+                    <p>ID del Expediente: {{expediente.id_expediente}}</p>
+                    <p>Nombre del Paciente: {{expediente.nombre}} {{expediente.apellido}}</p>
+                    <p>Doctor: {{expediente.nombre_doctor}} {{expediente.apellido_doctor}}</p>
+                    <p>Fecha: {{expediente.fecha_creacion}}</p>
+                </div></a>
             </div>
+            {% endfor %}
 
             <!-- Mensaje cuando no hay expedientes -->
             <div id="mensajeNoExpedientes" style="display:none;">
@@ -66,7 +72,7 @@
 
 
             <script>
-                function verExpediente(idExpediente, nombrePaciente, nombreDoctor, fechaHora) {
+                /*function verExpediente(idExpediente, nombrePaciente, nombreDoctor, fechaHora) {
                     window.location.href = 'DETALLE_EXPEDIENTE.php?id=' + idExpediente;
                 }
                 var expedientes = [
@@ -78,7 +84,7 @@
                     mensajeNoExpedientes.style.display = 'block';
                 } else {
                     mensajeNoExpedientes.style.display = 'none';
-                }
+                }*/
 
 
                 var contenedorExpedientes = document.getElementById('expedientes');

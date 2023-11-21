@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
+import os
 from assets.passcheck import password_check
 from datetime import datetime
 
@@ -434,9 +435,10 @@ def crearexpediente():
                 print('Este usuario ya tiene un expediente registrado!')
                 msg = 'Este usuario ya tiene un expediente registrado!'
                 return redirect(url_for('crearexpediente'))
-            with open('exp'+id_paciente_seleccion+'.txt', 'w') as f:
+            path = 'static/info/exp'
+            with open(path+id_paciente_seleccion+'.txt', 'w') as f:
                 f.write(str(info))
-            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info) VALUES (%s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], 'exp'+id_paciente_seleccion+'.txt',))
+            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info) VALUES (%s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], path+id_paciente_seleccion+'.txt',))
             mysql.connection.commit()
             cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s',(id_paciente_seleccion,))
             id_expediente = cursor.fetchone()

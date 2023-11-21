@@ -420,27 +420,51 @@ def expedientes():
 def crearexpediente():
     msg = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    id_paciente_seleccion = ''
+    secretario = ''
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     elif 'idDoctor' in session:
-        if request.method == "POST" and 'info' in request.form and 'tipo_sangre' in request.form and 'alergias' in request.form and 'paciente' in request.form:
-            cursor.execute('SELECT id FROM usuario WHERE nombre = %s', (request.form['paciente']),)
-            id_paciente = cursor.fetchone()
+        if request.method == "POST" and 'info' in request.form and 'id_paciente_1' in request.form:
+            id_paciente_seleccion = request.form['id_paciente_1']
             info = request.form['info']
-            tipo_sangre = request.form['tipo_sangre']
-            alergias = request.form['alergias']
-            cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s', (id_paciente,))
+            cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s', (id_paciente_seleccion,))
             existencia = cursor.fetchone()
             if existencia:
                 print('Este usuario ya tiene un expediente registrado!')
-                return render_template('expediente_crear.html', msg = msg)
-            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info, tipo_sangre, alergias) VALUES (%s, %s, %s, %s, %s)',(id_paciente, session['idDoctor'], info, tipo_sangre, alergias,))
+                msg = 'Este usuario ya tiene un expediente registrado!'
+                return redirect(url_for('crearexpediente'))
+            with open('exp'+id_paciente_seleccion+'.txt', 'w') as f:
+                f.write(str(info))
+            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info) VALUES (%s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], 'exp'+id_paciente_seleccion+'.txt',))
             mysql.connection.commit()
+            cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s',(id_paciente_seleccion,))
+            id_expediente = cursor.fetchone()
+            if 'pacienteShare' in request.form:
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], id_paciente_seleccion, 'VER',))
+                mysql.connection.commit()
+            if 'secretarioShare' in request.form:
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], request.form['secretarioShare'], 'VER',))
+                mysql.connection.commit()
+            if 'id_usuario_compartir' in request.form and 'privilegios' in request.form:
+                id_usuario_compartir = request.form['id_usuario_compartir']
+                privilegios = request.form['privilegios']
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], id_usuario_compartir, privilegios,))
             print('Expediente registrado con exito!')
-            return redirect(url_for('expedientes'))
+            msg = 'Expediente registrado con exito!'
+    else:
+        abort(403)
     cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)',(session['idDoctor'],))
     pacientes = cursor.fetchall()
-    return render_template('expediente_crear.html', pacientes = pacientes, msg = msg)
+    cursor.execute("SELECT * FROM usuario WHERE tipo = 'Doctor' AND id <> %s",(session['id'],))
+    usuarios = cursor.fetchall()
+    cursor.execute("SELECT * FROM secretario WHERE id_doctor_afiliado = %s", (session['idDoctor'],))
+    secretario = cursor.fetchone()
+    if secretario:
+        secretario = secretario
+    else:
+        secretario = ''
+    return render_template('expediente_crear.html', pacientes = pacientes, msg = msg, secretario = secretario, usuarios = usuarios)
 
 #Ruta de visualizacion individual de expediente
 @app.route('/expediente/<id>')
@@ -459,7 +483,11 @@ def visualizacion_expediente(id):
     if flag or 'admin' in session:
         cursor.execute('SELECT * FROM expediente WHERE id = %s', (id,))
         expediente = cursor.fetchone()
-    return render_template('expediente_visualizacion.html', expediente = expediente)
+        f = open(expediente['info'], "r")
+        contenido = f.read()
+        cursor.execute('SELECT * FROM usuario WHERE id = %s', (expediente['id_paciente'],))
+        infopaciente = cursor.fethone()
+    return render_template('expediente_visualizacion.html', infopaciente = infopaciente, expediente = contenido)
 
 #Ruta de cambios hechos al expediente
 @app.route('/expediente/<id>/cambios')
@@ -520,10 +548,10 @@ def Error():
 def page_not_found(e):
     return render_template('error.html', error_code=404, error_message='Página no encontrada', description='Lo sentimos, la página que buscas no existe.'), 404
 
-# # Manejador de error 403
-# @app.errorhandler(403)
-# def access_forbidden(e):
-#     return render_template('error.html', error_code=403, error_message='Acceso denegado', description='No tienes permiso para acceder a esta página.'), 403
+# Manejador de error 403
+@app.errorhandler(403)
+def access_forbidden(e):
+    return render_template('error.html', error_code=403, error_message='Acceso denegado', description='No tienes permiso para acceder a esta página.'), 403
 
 #Ruta de cerrar sesion
 @app.route('/logout')

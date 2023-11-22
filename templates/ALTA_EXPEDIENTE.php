@@ -101,94 +101,77 @@
             }
         </style>
         <script>
-
-        // When the user clicks on <div>, open the popup
-            function show() {
-                var popup = document.getElementById("popup").style.display = 'block';
+            function mostrarVentanaEmergente() {
+                document.getElementById('popup').style.display = 'block';
             }
-            function showShare() {
-                var checkBox = document.getElementById("permisoCompartir");
-                if (checkBox.checked == true) {
-                    var share = document.getElementById("compartir").style.display = 'block'
-                }
-                else {
-                    var share = document.getElementById("compartir").style.display = 'none'
-                }
+            function cerrarVentanaEmergente() {
+                document.getElementById('popup').style.display = 'none';
             }
-            function hide() {
-                var popup = document.getElementById("popup").style.display = 'none'
+            function preguntaCompartir() {
+                cerrarVentanaEmergente();
+                var compartirPopup = window.open('', 'Compartir Expediente', 'width=400,height=300');
+                compartirPopup.document.write(`
+                <html>
+                <head>
+                    <title>Compartir Expediente</title>
+                </head>
+                <body>
+                    <p>¿Desea compartir el expediente?</p>
+                    <form>
+                    <label for="nombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="Ingresa el nombre del usuario" required><br>
+                    <label for="privilegios">Privilegios:</label>
+                    <select id="privilegios" name="privilegios">
+                        <option value="ver">Ver</option>
+                        <option value="modificar">Modificar</option>
+                    </select><br>
+                    <button type="button" onclick="compartirExpediente()">Compartir</button>
+                    </form>
+                </body>
+                </html>
+                `);
             }
         </script>
+
     </head>
     <body>
         <div class="fondo">
-        <a class="regresar" href="{{url_for('expedientes')}}">Regresar a la lista</a>
-        <form id="Form01" name="Form01" valign="center" align="middle" method="post" action="{{url_for('crearexpediente')}}">
+        <a class="regresar" href="LISTA_EXPEDIENTE.php">Regresar a la lista</a>
+        <form id="Form01" name="Form01" valign="center" align="middle">
             <div class="tabla">
             <H1>Expediente medico</H1>
                 <div class="columna cajas">
-                    {% if msg %}
-                        <p>{{msg}}</p>
-                    {% endif %}
-                    <br><p>Dr. {{session['nombre']}}</p><br>
-                    <!--<br><p>Datos de alta</p>
+                    <br><p>Nombre del doctos que creo el expediente</p><br>
+                    <br><p>Datos de alta</p>
                     <input type="text" name="fechaHora" id="fechaHora" placeholder="fecha y hora..."/>
                     <input type="text" style="width:60px;height:10px" name="numConsul" id="numConsul" placeholder="N° de consultorio..."/>
                     <input type="text" style="width:60px;height:10px" name="IdExp" id="IdExp" placeholder="ID del expediente..."/><br>
-                    <input type="text" name="motivoConsul" id="motivoConsul" placeholder="motivo de la cita..."/><br>-->
+                    <input type="text" name="motivoConsul" id="motivoConsul" placeholder="motivo de la cita..."/><br>
                     <br><p>Datos personales</p>
-                    <!--<input type="text" name="nombre" id="nombre" placeholder="Nombre completo"/>
+                    <input type="text" name="nombre" id="nombre" placeholder="Nombre completo"/>
                     <input type="text" style="width:60px;height:10px" name="sexo" id="sexo" placeholder="Sexo"/>
                     <input type="text" style="width:60px;height:10px" name="edad" id="edad" placeholder="Edad"/><br>
                     <input type="text" name="domicilio" id="domicilio" placeholder="Domicilio"/>
-                    <input type="text" name="telefono" id="telefono" placeholder="Telefono"/><br>-->
-                    <div>
-                        <label for="id_paciente_1">Paciente:</label>
-                        <select id="id_paciente_1" name="id_paciente_1" required>
-                            {% for paciente in pacientes %}
-                                <option value="{{ paciente.id }}" onclick="">{{ paciente.nombre }} {{paciente.apellido}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <input type="text" name="telefono" id="telefono" placeholder="Telefono"/><br>
                     <br><p>Datos de salud</p>
-                    <textarea  style="width:600px;height:80px" id="info" name="info" data-component="textarea" placeholder="Historial clinico.." aria-labelledby="label_26"></textarea><br>
+                    <textarea  style="width:600px;height:80px" data-component="textarea" placeholder="Historial clinico.." aria-labelledby="label_26"></textarea><br>
                     <br><p>Observaciones</p>
                     <textarea  style="width:600px;height:80px" data-component="textarea" aria-labelledby="label_26"></textarea><br><br>
                     
-                    <label for="permisoCompartir">¿Desea compartir el expediente?</label>
-                    <input type="checkbox" id="permisoCompartir" name="permisoCompartir" value="Si" onclick="showShare()">
-                    <div id="compartir" class="compartir" style="display: none;">
-                        <input type="checkbox" id="pacienteShare" name="pacienteShare" value="Si">
-                        <label for="pacienteShare"> ¿Compartir con Paciente?</label><br>
-                        {% if secretario != '' %}
-                        <input type="checkbox" id="secretarioShare" name="secretarioShare" value="{{secretario.id_usuario}}">
-                        <label for="secretarioShare"> ¿Compartir con Secretari@?</label><br>
-                        {% endif %}
-                        <label for="id_usuario_compartir">Nombre de Usuario:</label>
-                        <select id="id_usuario_compartir" name="id_usuario_compartir">
-                            {% for usuario in usuarios %}
-                                <option value="{{ usuario.id }}">{{ usuario.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                        <br><label for="privilegios">Privilegios:</label>
-                        <select id="privilegios" name="privilegios">
-                            <option value="VER">Ver</option>
-                            <option value="EDITAR">Modificar</option>
-                        </select><br>
-                    </div>
-
-                    <!--<form enctype="multipart/form-data" action="salva_archivo.php" method="post">
+                    <form enctype="multipart/form-data" action="salva_archivo.php" method="post">
                         <input type="file" id="archivo" name="archivo">
-                    </form>-->
-                    <br><input type="button" value="Guardar expediente" onclick="show()"/><br><br>
+                    </form>
                 </div>
+                
             </div>
-            <div class="popup" id="popup">
-                <p>¿Desea continuar con el guardado?</p>
-                <input type="submit" value="Si">
-                <input type="Button" value="No" onclick="hide()">
-            </div>          
+            <input type="submit" onclick="mostrarVentanaEmergente()" value="Guardar expediente"/><br><br>           
         </form>    
         </div>
+       
     </body>
+    <div id="popup">
+        <p>¿Desea continuar con el guardado?</p><br>
+        <button onclick="preguntaCompartir()">Sí</button>
+        <button onclick="cerrarVentanaEmergente()">No</button>
+    </div>
 </html>

@@ -490,7 +490,7 @@ def visualizacion_expediente(id):
                 flag = True
         if permiso:
             flag = True
-        else:
+        if flag == False:
             abort(404)
     if flag or 'admin' in session:
         cursor.execute('SELECT * FROM ExpedientesInformacionCompleta WHERE id_expediente = %s', (id,))

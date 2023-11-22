@@ -14,7 +14,7 @@ def password_check(password):
     """
 
     # calculating the length
-    length = len(password) < 8
+    length = len(password) >= 8
 
     # searching for digits
     digit = re.search(r"\d", password)

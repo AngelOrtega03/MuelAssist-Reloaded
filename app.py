@@ -580,7 +580,7 @@ def logout():
     session.pop('idPaciente', None)
     session.pop('idDoctor', None)
     session.pop('idSecretario', None)
-    return redirect(url_for('login'))
+    return redirect(url_for('inicio'))
 
 #@app.route('/login', methods =['GET', 'POST'])
 #def login():

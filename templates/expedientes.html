@@ -51,8 +51,13 @@
         </style>
     </head>
     <body>
-        <div class="fondo"> 
+        <div class="fondo">
+            {% if session['idDoctor'] %} 
             <a class="regresar" href="{{url_for('crearexpediente')}}">Agregar expediente</a>
+            {% endif %}
+            {% if msg %}
+            <p>{{msg}}</p>
+            {% endif %}
             {% for expediente in expedientes %}
             <div id="expedientes">
                 <!-- Ejemplo de expediente -->

@@ -70,6 +70,11 @@
             </select>
         </div>
 
+        <div>
+            <label for="motivo">Motivo:</label>
+            <input type="text" id="motivo" name="motivo">
+        </div>
+
         <!-- Selector de doctores -->
         {% if session['idPaciente'] %}
         <div>
@@ -93,7 +98,7 @@
             <label for="id_paciente">Paciente:</label>
             <select id="id_paciente" name="id_paciente" required>
                 {% for paciente in pacientes %}
-                    <option value="{{ paciente.id }}">{{ paciente.nombre }}</option>
+                    <option value="{{ paciente.id }}">{{ paciente.nombre }} {{paciente.apellido}}</option>
                 {% endfor %}
             </select>
         </div>

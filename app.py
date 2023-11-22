@@ -247,7 +247,7 @@ def agendar():
             id_paciente = session['idPaciente']
             estado = 'Pendiente de revision'
         elif 'idDoctor' in session:
-            cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)', (session['idDoctor'],))
+            cursor.execute("SELECT * FROM usuario WHERE tipo = 'Paciente'")
             id_doctor = session['idDoctor']
             pacientes = cursor.fetchall()
         elif 'admin' in session:
@@ -255,8 +255,9 @@ def agendar():
             doctores = cursor.fetchall()
             cursor.execute("SELECT * FROM usuario WHERE tipo = 'Paciente'")
             pacientes = cursor.fetchall()
-        if request.method == 'POST' and 'fecha' in request.form and 'hora' in request.form:
+        if request.method == 'POST' and 'fecha' in request.form and 'hora' in request.form and 'motivo' in request.form:
             fecha_hora = request.form['fecha']+' '+request.form['hora']
+            motivo = request.form['motivo']
             if 'id_doctor' in request.form:
                 id_doctor = request.form['id_doctor']
             elif 'id_paciente' in request.form:
@@ -266,7 +267,7 @@ def agendar():
             if existencia:
                 msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
             else:
-                cursor.execute('INSERT INTO cita(id_doctor, id_paciente, fecha_hora, estado) VALUES (%s, %s, %s, %s)', (id_doctor, id_paciente, fecha_hora, estado,))
+                cursor.execute('INSERT INTO cita(id_doctor, id_paciente, fecha_hora, estado, motivo) VALUES (%s, %s, %s, %s, %s)', (id_doctor, id_paciente, fecha_hora, estado, motivo,))
                 mysql.connection.commit()
                 msg = 'Cita registrada con exito!'
         return render_template("agendar_cita_2.html", fecha_actual = fecha_actual, msg = msg, doctores = doctores, pacientes = pacientes)
@@ -322,14 +323,15 @@ def edicion_cita(id):
         cita = cursor.fetchone()
         if not cita:
             abort(404)
-    if request.method == 'POST' and 'fecha' in request.form and 'hora' in request.form:
+    if request.method == 'POST' and 'fecha' in request.form and 'hora' in request.form and 'motivo' in request.form:
         fecha_hora = request.form['fecha']+' '+request.form['hora']
+        motivo = request.form['motivo']
         cursor.execute('SELECT * FROM cita WHERE (id_doctor = %s OR id_paciente = %s) AND fecha_hora = %s',(cita['id_doctor'], cita['id_paciente'], fecha_hora,))
         existencia = cursor.fetchone()
         if existencia:
             msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
         else:
-            cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', id,))
+            cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s, motivo = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', motivo, id,))
             mysql.connection.commit()
             msg = 'Cita actualizada con exito!'
     return render_template("cita_editar.html", fecha_actual = fecha_actual, msg = msg, cita = cita)
@@ -397,6 +399,8 @@ def citasSecretario(id,estado):
 #Ruta de visualizacion general de expedientes
 @app.route('/expedientes')
 def expedientes():
+    msg = ''
+    expedientes = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -412,7 +416,9 @@ def expedientes():
     elif 'admin' in session:
         cursor.execute("SELECT * FROM ExpedientesInformacionCompleta")
         expedientes = cursor.fetchall()
-    return render_template('expedientes.html', expedientes = expedientes)
+    if not expedientes:
+        msg = 'No tienes ningun expediente registrado o autorizado!'
+    return render_template('expedientes.html', expedientes = expedientes, msg = msg)
 
 #Ruta de creacion de expediente
 @app.route('/crearexpediente', methods =['GET', 'POST'])
@@ -454,7 +460,7 @@ def crearexpediente():
             msg = 'Expediente registrado con exito!'
     else:
         abort(403)
-    cursor.execute('SELECT * FROM usuario WHERE id = (SELECT id_paciente FROM cita WHERE id_doctor = %s)',(session['idDoctor'],))
+    cursor.execute('SELECT DISTINCT usuario.id, usuario.nombre, usuario.apellido FROM usuario, cita WHERE usuario.id = cita.id_paciente AND id_doctor = %s',(session['idDoctor'],))
     pacientes = cursor.fetchall()
     cursor.execute("SELECT * FROM usuario WHERE tipo = 'Doctor' AND id <> %s",(session['id'],))
     usuarios = cursor.fetchall()
@@ -626,6 +632,6 @@ def logout():
 
 #Funciones usuario comun
 
-#if __name__ == '__main__':
-#    app.register_error_handler(404, page_not_found)
-#    app.run(debug=True)
+if __name__ == '__main__':
+    app.register_error_handler(404, page_not_found)
+    app.run(debug=True)

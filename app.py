@@ -483,9 +483,12 @@ def visualizacion_expediente(id):
     elif 'idPaciente' in session or 'idDoctor' in session or 'idSecretario' in session:
         cursor.execute('SELECT id_usuario FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s', (id, session['id'],))
         permiso = cursor.fetchone()
-        cursor.execute('SELECT id_paciente FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
-        creador = cursor.fetchone()
-        if(permiso or creador):
+        if 'idDoctor' in session:
+            cursor.execute('SELECT id_paciente FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
+            creador = cursor.fetchone()
+            if creador:
+                flag = True
+        if permiso:
             flag = True
         else:
             abort(404)
@@ -633,6 +636,6 @@ def logout():
 
 #Funciones usuario comun
 
-#if __name__ == '__main__':
-#    app.register_error_handler(404, page_not_found)
-#    app.run(debug=True)
+if __name__ == '__main__':
+    app.register_error_handler(404, page_not_found)
+    app.run(debug=True)

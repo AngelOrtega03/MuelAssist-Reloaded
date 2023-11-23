@@ -68,7 +68,7 @@ def login():
                 return redirect(url_for('agendar'))
             else:
                 msg = 'Usuario no existe.'
-        elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'domicilio' in request.form and 'passwordRegistro' in request.form:
+        elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dob' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'domicilio' in request.form and 'passwordRegistro' in request.form and 'tipo_sangre' in request.form:
             correo = request.form['correo_electronico_r']
             nombre = request.form['nombre']
             apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
@@ -76,7 +76,8 @@ def login():
             telefono = request.form['telefono']
             domicilio = request.form['domicilio']
             password = request.form['passwordRegistro']
-            fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
+            fechanacimiento = request.form['dob']
+            tipo_sangre = request.form['tipo_sangre']
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
             account = cursor.fetchone()
@@ -85,7 +86,7 @@ def login():
             elif password_check(password) == False:
                 msg = 'Contraseña no valida!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Paciente', ))
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Paciente', tipo_sangre,))
                 mysql.connection.commit()
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                 account = cursor.fetchone()

@@ -91,7 +91,7 @@ h2.active {
 
 /* FORMA TIPOGRAFIA*/
 
-input[type=button], input[type=submit], input[type=reset]  {
+input[type=button], input[type=submit], input[type=reset], input[type=date]  {
   background-color: #56baed;
   border: none;
   color: white;

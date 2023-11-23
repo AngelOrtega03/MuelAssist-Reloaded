@@ -101,59 +101,96 @@ def registro_doctor():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     elif 'admin' in session:
-        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form and 'cedula' in request.form:
+        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dob' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form and 'cedula' in request.form and 'domicilio' in request.form and 'rfc' in request.form and 'curp' in request.form and 'exp_lab' in request.form and 'ref_lab' in request.form and 'tipo_sangre' in request.form:
             correo = request.form['correo_electronico_r']
             nombre = request.form['nombre']
             apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
             sexo = request.form['sexo']
             telefono = request.form['telefono']
             password = request.form['passwordRegistro']
-            fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
+            fechanacimiento = request.form['dob']
+            domicilio = request.form['domicilio']
             cedula = request.form['cedula']
+            rfc = request.form['rfc']
+            curp = request.form['curp']
+            tipo_sangre = request.form['tipo_sangre']
+            experiencia_laboral = request.form['exp_lab']
+            referencia_laboral = request.form['ref_lab']
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
+            cursor.execute('SELECT id,correo FROM usuario WHERE correo = %s', (correo,))
             account = cursor.fetchone()
             if account:
                 msg = 'Este correo ya esta registrado!'
+            elif password_check(password) == False:
+                msg = 'Contraseña no valida!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Doctor', ))
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, domicilio, tipo, tipo_sangre) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, domicilio,'Doctor', tipo_sangre,))
                 mysql.connection.commit()
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
-                account = cursor.fetchone()
-                cursor.execute('INSERT INTO doctor (id_usuario, cedula) VALUES (%s)', (account['id'],cedula,))
+                account2 = cursor.fetchone()
+                path = 'static/info/lab'
+                with open(path+'exp'+str(account2['id'])+'.txt', 'w') as f:
+                    f.write(str(experiencia_laboral))
+                with open(path+'ref'+str(account2['id'])+'.txt', 'w') as f:
+                    f.write(str(referencia_laboral))
+                print(account2['id'])
+                cursor.execute('INSERT INTO doctor (id_usuario, cedula, rfc, curp, experiencia_laboral, referencia_laboral) VALUES (%s, %s, %s, %s, %s, %s)', (account2['id'],cedula,rfc,curp,path+'exp'+str(account2['id'])+'.txt', path+'ref'+str(account2['id'])+'.txt',))
+                mysql.connection.commit()
                 msg = 'Registro exitoso!'    
         return render_template('registerDoc.html', msg = msg)
     else:
-        return redirect(url_for('agendar'))
+        abort(403)
     
 #Ruta pagina de registro secretario
 @app.route('/register/sec', methods =['GET', 'POST'])
 def registro_secretario():
     msg = ''
+    id_doctor_afiliado = ''
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
-    elif 'idDoctor' in session:
-        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dia' in request.form and 'mes' in request.form and 'anio' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form:
+    elif 'idDoctor' in session or 'admin' in session:
+        if request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dob' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'passwordRegistro' in request.form and 'domicilio' in request.form and 'rfc' in request.form and 'curp' in request.form and 'tipo_sangre' in request.form and 'exp_lab' in request.form and 'ref_lab' in request.form:
+            if 'idDoctor' in session:
+                id_doctor_afiliado = session['idDoctor']
+            elif 'doctor' in request.form:
+                id_doctor_afiliado = request.form['doctor']
             correo = request.form['correo_electronico_r']
             nombre = request.form['nombre']
             apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
             sexo = request.form['sexo']
             telefono = request.form['telefono']
             password = request.form['passwordRegistro']
-            fechanacimiento = request.form['anio']+'-'+request.form['mes']+'-'+request.form['dia']
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            fechanacimiento = request.form['dob']
+            tipo_sangre = request.form['tipo_sangre']
+            domicilio = request.form['domicilio']
+            rfc = request.form['rfc']
+            curp = request.form['curp']
+            exp_lab = request.form['exp_lab']
+            ref_lab = request.form['ref_lab']
             cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
             account = cursor.fetchone()
             if account:
                 msg = 'Este correo ya esta registrado!'
+            elif password_check(password) == False:
+                msg = 'Contraseña no valida!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo) VALUES (% s, % s, % s, % s, % s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Secretario', ))
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo, tipo_sangre, domicilio) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Secretario', tipo_sangre, domicilio,))
                 mysql.connection.commit()
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                 account = cursor.fetchone()
-                cursor.execute('INSERT INTO secretario (id_usuario, id_doctor_afiliado) VALUES (%s)', (account['id'], session['idDoctor'],))
-                msg = 'Registro exitoso!'    
-        return render_template('registerSec.html', msg = msg)
+                path = 'static/info/lab'
+                with open(path+'exp'+str(account['id'])+'.txt', 'w') as f1:
+                    f1.write(str(exp_lab))
+                with open(path+'ref'+str(account['id'])+'.txt', 'w') as f2:
+                    f2.write(str(ref_lab))
+                print(account['id'])
+                cursor.execute('INSERT INTO secretario (id_usuario, id_doctor_afiliado, rfc, curp, experiencia_laboral, referencia_laboral) VALUES (%s, %s, %s, %s, %s, %s)', (account['id'], id_doctor_afiliado, rfc, curp, path+'exp'+str(account['id'])+'.txt', path+'ref'+str(account['id'])+'.txt',))
+                mysql.connection.commit()
+                msg = 'Registro exitoso!'
+        cursor.execute('SELECT * FROM DoctoresInformacionCompleta')
+        doctores = cursor.fetchall()    
+        return render_template('registerSec.html', msg = msg, doctores = doctores)
     else:
         return redirect(url_for('agendar'))
 

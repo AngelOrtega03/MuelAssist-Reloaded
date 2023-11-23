@@ -66,6 +66,52 @@ h2:hover {
 }
 
 
+#exp_lab{
+    width: 85%;
+    height: 100px;
+    font-size: 16px;
+    padding: 15px 32px;
+    margin: 5px;
+    border: 2px solid #f6f6f6;
+    border-bottom: 2px solid #5fbae9;
+    background-color: #f6f6f6;
+    color: #0d0d0d;
+    resize: none;
+    font-family: Arial, sans-serif;
+    border-radius: 5px;
+    -webkit-transition: all 0.5s ease-in-out;
+    -moz-transition: all 0.5s ease-in-out;
+    -ms-transition: all 0.5s ease-in-out;
+    -o-transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
+    text-align: center;
+}
+
+
+
+#ref_lab{
+  width: 85%;
+  height: 100px;
+  font-size: 16px;
+  padding: 15px 32px;
+  margin: 5px;
+  border: 2px solid #f6f6f6;
+  border-bottom: 2px solid #5fbae9;
+  background-color: #f6f6f6;
+  color: #0d0d0d;
+  resize: none;
+  font-family: Arial, sans-serif;
+  border-radius: 5px;
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  -o-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  text-align: center;
+
+}
+
+
 
 /* PESTAÑAS */
 
@@ -105,7 +151,7 @@ input:active{
   transform: scale(0.95);
 }
 
-input[type=text],input[type=password], input[type=date], input[type=email] {
+input[type=text],input[type=password], input[type=date], input[type=email], select {
   background-color: #f6f6f6;
   border: none;
   color: #0d0d0d;

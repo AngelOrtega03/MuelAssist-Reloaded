@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../static/css/registro_doctor.css">
+<html>
+
+<head></head>
+
+<body>
+
+  <div class="wrapper fadeInDown">
+
+    <div id="FORMULARIO_CONTENIDO">
+
+      <!-- PESTAÑAS -->
+      <h2 class="active underlineHover" id="registro-link">Registrar Doctor</h2>
+
+      <!-- ICONO -->
+      <div class="fadeIn first">
+        <img src="../static/img/diente.png" id="icon" />
+      </div>
+
+      <!-- Sección de Registro (pantalla de registro) -->
+      <div id="registro-seccion">
+        <!-- Contenido de la sección de registro -->
+        <form action="{{url_for('registro_doctor')}}" method="POST">
+            <input type="text" id="nombre" class="fadeIn second" name="nombre" placeholder="Nombre" required>
+            <input type="text" id="apellido-paterno" class="fadeIn second" name="apellido-paterno" placeholder="Apellido Paterno" required>
+            <input type="text" id="apellido-materno" class="fadeIn second" name="apellido-materno" placeholder="Apellido Materno" required>
+            <label for="btnSex">Género:</label>
+            <div class="sex">
+                <input type="radio" id="male" name="sexo" class="radio" value="M">
+                <label for="male">Masculino</label>
+                <input type="radio" id="female" name="sexo" class="radio" value="F">
+                <label for="female">Femenino</label>
+            </div>
+            <div id="fechanacimiento" class="fechanacimiento">
+                <label for="dob" class="lblCalendar">Fecha de Nacimiento:</label>
+                <input type="date" id="dob" name="dob" max="" required>
+            </div>
+            <input type="text" id="cedula" class="fadeIn second" name="cedula" placeholder="Cedula" required>
+            <input type="text" id="domicilio" class="fadeIn second" name="domicilio" placeholder="Domicilio" required>
+            <input type="text" id="telefono" class="fadeIn second" name="telefono" placeholder="Número de Teléfono" required>
+            <input type="text" id="rfc" class="fadeIn second" name="rfc" placeholder="RFC" maxlength="13" required>
+            <input type="text" id="curp" class="fadeIn second" name="curp" placeholder="CURP" maxlength="18" required>
+            <input type="text" id="tipo_sangre" class="fadeIn second" name="tipo_sangre" placeholder="Tipo de Sangre" required>
+
+            <textarea id="exp_lab" class="fadeIn second" name="exp_lab" placeholder="Experiencia Laboral" maxlength="300"></textarea>
+            <textarea id="ref_lab" class="fadeIn second" name="ref_lab" placeholder="Referencia Laboral" maxlength="300"></textarea>
+
+            <input type="email" id="correo_electronico_r" class="fadeIn second" name="correo_electronico_r" placeholder="Correo Electronico" required>
+            <input type="password" id="password_r" class="fadeIn second" name="passwordRegistro" placeholder="Contraseña" required>
+          <!-- Puedes agregar más campos aquí -->
+
+            <button type="submit" class="fadeIn fourth">REGISTRARSE</button>
+            <p>{{msg}}</p>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

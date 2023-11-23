@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, a
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import os
+import pathlib
 from assets.passcheck import password_check
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
@@ -11,7 +12,7 @@ from flask import render_template_string
 
 
 app = Flask(__name__)
-
+app.config['UPLOAD_FOLDER'] = 'static/img/usuarios/'
 
 app.secret_key = 'your secret key'
 
@@ -431,30 +432,38 @@ def editarperfil():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
-    elif request.method == 'POST' and 'nombre' in request.form and 'apellido' in request.form and 'sexo' in request.form and 'fecha_nacimiento' in request.form and 'telefono' in request.form and 'correo' in request.form and 'contrasenia' in request.form: 
+    elif request.method == 'POST': 
         nombre = request.form['nombre']
-        apellido = request.form['apellido']
-        sexo = request.form['sexo']
-        fecha_nacimiento = request.form['fecha_nacimiento']
+        apellido = request.form['apellidos']
+        domicilio = request.form['domicilio']
         telefono = request.form['telefono']
         correo = request.form['correo']
         contrasenia = request.form['contrasenia']
         if password_check(contrasenia) == False:
             msg = 'Contraseña no valida!'
         else:
-            cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, sexo = %s, fecha_nacimiento = %s, telefono = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, sexo, fecha_nacimiento, telefono, contrasenia, session['id'],))
-            mysql.connection.commit()
-            if 'idDoctor' in session and 'cedula' in request.form:
-                cedula = request.form['cedula']
-                cursor.execute('UPDATE doctor SET cedula = %s WHERE id = %s', (cedula, session['idDoctor'],))
+            if 'file1' in request.files:
+                print('Imagen encontrada...')
+                imagen = request.files['file1']
+                path = os.path.join(app.config['UPLOAD_FOLDER'], imagen.filename)
+                print(path)
+                imagen.save(path)
+                cursor.execute('UPDATE usuario SET imagen_perfil = %s WHERE id = %s', (path, session['id'],))
                 mysql.connection.commit()
+            cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, domicilio = %s, telefono = %s, correo = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, domicilio, telefono, correo, contrasenia, session['id'],))
+            mysql.connection.commit()
             print('Datos actualizados!')
+            msg = 'Datos actualizados!'
             session['nombre'] = nombre
             session['apellido'] = apellido
             session['correo'] = correo
     cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
     perfil = cursor.fetchone()
     return render_template("editarperfil.html", msg = msg, perfil = perfil)
+
+#Funcion que genera nombre para imagen subida
+def generate_custom_name(original_file_name):
+    return "user" +str(session['id'])+pathlib.Path(original_file_name).suffix
 
 #Ruta de pagina para agendar citas
 @app.route('/citas/agendar', methods =['GET', 'POST'])

@@ -108,6 +108,13 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             z-index: 1000;
         }
+        input[type=text], input[type=email], input[type=password] {
+            width: 300px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 50px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -121,12 +128,16 @@
 <div class="container">
     <div class="left-side">
         <!-- Foto de perfil -->
+        <form method="post" action="{{url_for('editarperfil')}}" enctype="multipart/form-data">
         <div class="profile-picture">
-            {% if perfil['imagen_perfil'] == None %}
-            <img src="../static/img/icono_camara.png" alt="Examinar Foto" id="profile-image">
-            {% else %}
-            <img src="../{{perfil.imagen_perfil}}" alt="Examinar Foto" id="profile-image">
-            {% endif %}
+            <label>
+                <input type="file" id="file-input" name="file1" accept="image/*" onchange="mostrarImagen(this)">
+                {% if perfil['imagen_perfil'] == None %}
+                <img src="../static/img/icono_camara.png" alt="Examinar Foto" id="profile-image">
+                {% else %}
+                <img src="../{{perfil.imagen_perfil}}" alt="Examinar Foto" id="profile-image">
+                {% endif %}/>
+            </label>
         </div>
         <button class="appointments-button" onclick="verCitas()">Ver Citas</button>
         <p class="profile-type">{{perfil.tipo}}</p> <!-- Cambio de tamaño de la fuente -->
@@ -134,53 +145,30 @@
     <div class="right-side">
         <p>{{msg}}</p>
         <h1>Mira y edita tu información personal</h1>
-        <p>Nombre: {{perfil.nombre}}</p>
-        <p>Apellidos: {{perfil.apellido}}</p>
-        <p>Sexo: {{perfil.sexo}}</p>
-        <p>Fecha de Nacimiento: {{perfil.fecha_nacimiento}}</p>
-        <p>Domicilio: {{perfil.domicilio}}</p>
-        {% if session['idDoctor'] or session['idSecretario'] %}
-        {% if session['idDoctor'] %}
-        <p>Cedula: {{datos_extra.cedula}}</p>
-        {% elif session['idSecretario'] %}
-        <p>Doctor asignado: Dr. {{datos_exta.nombre_doctor}} {{datos_exta.apellido_doctor}}</p>
-        {% endif %}
-        <p>RFC: {{datos_extra.rfc}}</p>
-        <p>CURP: {{datos_extra.curp}}</p>
-        <p>Experiencia Laboral:</p>
-        <p>{{exp_lab}}</p>
-        <p>Referencia Laboral:</p>
-        <p>{{ref_lab}}</p>
-        {% endif %}
-        <p>Correo Electrónico: {{perfil.correo}}</p>
-        <p>Número de Teléfono: {{perfil.telefono}}</p>
-        
+            <p>Nombre: </p>
+            <input type="text" id="nombre" name="nombre" placeholder="{{perfil.nombre}}" required><br><br>
+            <p>Apellidos: </p>
+            <input type="text" id="apellidos" name="apellidos" placeholder="{{perfil.apellido}}" required><br><br>
+            <p>Domicilio: </p>
+            <input type="text" id="domicilio" name="domicilio" placeholder="{{perfil.domicilio}}" required><br><br>
+            <p>Correo: </p>
+            <input type="email" id="correo" name="correo" placeholder="{{perfil.correo}}" required><br><br>
+            <p>Telefono: </p>
+            <input type="text" id="telefono" name="telefono" placeholder="{{perfil.telefono}}" required><br><br>
+            <p>Contraseña: </p>
+            <input type="password" id="contrasenia" name="contrasenia" required>
+            <div class="popup1" id="popup1">
+                <p>¿Desea guardar los cambios?</p>
+                <input type="submit" value="Si">
+                <input type="Button" value="No" onclick="hide1()">
+            </div>   
+        </form>
         <div class="edit-buttons">
-            <a href="{{url_for('editarperfil')}}"><button>Editar información</button></a>
-            {% if perfil.borrar == 'SI' %}
-            <button onclick="show2()">Recuperar cuenta</button>
-            {% else %}
-            <button class="delete-button" onclick="show1()">Eliminar cuenta</button>
-            {% endif %}
+            <button onclick="show1()">Guardar información</button>
+            <a href="{{url_for('perfil')}}"><button>Cancelar</button></a>
         </div>
     </div>
-</div>
-
-<form method="post" action="{{url_for('perfil')}}">
-<div class="popup1" id="popup1">
-    <p>¿Desea borrar la cuenta? Los cambios se aplicaran en 24 horas</p>
-    <input type="submit" name="cancelar" id="cancelar" value="Si">
-    <input type="Button" value="No" onclick="hide1()">
-</div>   
-</form>
-
-<form method="post" action="{{url_for('perfil')}}">
-<div class="popup2" id="popup2">
-    <p>¿Desea recuperar la cuenta?</p>
-    <input type="submit" name="reactivar" id="reactivar" value="Si">
-    <input type="Button" value="No" onclick="hide2()">
-</div>   
-</form>
+</div>  
 
 <script>
     function goBack() {
@@ -193,14 +181,6 @@
 
     function hide1() {
         var popup = document.getElementById("popup1").style.display = 'none'
-    }
-
-    function show2() {
-        var popup = document.getElementById("popup2").style.display = 'block';
-    }
-
-    function hide2() {
-        var popup = document.getElementById("popup2").style.display = 'none'
     }
     
     function mostrarImagen(input) {

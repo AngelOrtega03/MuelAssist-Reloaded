@@ -1,15 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, session, abort
+from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import os
 from assets.passcheck import password_check
 from datetime import datetime
+from flask_mail import Mail, Message
+import secrets
+import string
+from flask import render_template_string
 
 
 app = Flask(__name__)
 
 
 app.secret_key = 'your secret key'
+
+# Configuración de Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Reemplaza con el servidor SMTP que estés utilizando
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'danygo243@gmail.com' # Reemplaza con tu correo electrónico
+app.config['MAIL_PASSWORD'] = 'xywubtcoveneaeey'  # Reemplaza con tu contraseña
+app.config['MAIL_DEFAULT_SENDER'] = 'danygo243@gmail.com'
+mail = Mail(app)
 
 #Conexion con la base de datos
 app.config['MYSQL_HOST'] = '146.190.218.21'
@@ -41,65 +55,204 @@ def inicio():
         return render_template("inicio.html")
     else:
         return redirect(url_for('agendar'))
+    
+# Ruta para activar la cuenta
+@app.route('/activate/<code>')
+def activate_account(code):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT correo FROM usuario WHERE codigo_activacion = %s', (code,))
+    account = cursor.fetchone()
+
+    if account:
+        # Activa la cuenta en la base de datos (puedes realizar la actualización según tus necesidades)
+        cursor.execute('UPDATE usuario SET activo = 1 WHERE correo = %s', (account['correo'],))
+        mysql.connection.commit()
+
+        # Redirige a una página de éxito o a donde prefieras
+        return render_template('activation_success.html')
+    else:
+        # Redirige a una página de error si el código no es válido
+        return render_template('activation_error.html')
+    
+# Ruta de registro
+@app.route('/register', methods=['POST'])
+def register():
+    correo = request.form['correo']
+    password = request.form['passwordRegistro']
+
+    # Genera un código de activación único
+    codigo_activacion = secrets.token_urlsafe(16)
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('INSERT INTO usuario (correo, contrasenia, codigo_activacion) VALUES (%s, %s, %s)',
+                   (correo, password, codigo_activacion))
+    mysql.connection.commit()
+
+    # Envia el correo de activación
+    send_activation_email(correo, codigo_activacion)
+
+    # Redirige a una página de éxito o a donde prefieras
+    return render_template('registration_success.html')
+
+# Función para enviar el correo de activación
+def send_activation_email(correo, codigo_activacion):
+    activation_link = url_for('activate_account', code=codigo_activacion, _external=True)
+    msg = Message('Activa tu cuenta', sender='tu_correo@example.com', recipients=[correo])
+    msg.body = f'Haz clic en el siguiente enlace para activar tu cuenta: {activation_link}'
+    mail.send(msg)
 
 #Ruta pagina de login y registro
 @app.route('/login', methods =['GET', 'POST'])
 def login():
     msg = ''
     if 'loggedin' not in session:
-        if request.method == 'POST' and 'login' in request.form and 'password' in request.form:
-            correo = request.form['login']
-            contrasenia = request.form['password']
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute('SELECT * FROM usuario WHERE correo = % s AND contrasenia = % s', (correo, contrasenia, ))
-            account = cursor.fetchone()
-            if account:
-                session['id'] = account['id']
-                session['loggedin'] = True
-                session['nombre'] = account['nombre']
-                session['apellido'] = account['apellido']
-                session['correo'] = account['correo']
-                if account['tipo'] == 'Admin':
-                    session['admin'] = True
-                elif account['tipo'] == 'Doctor':
-                    cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s', (session['id'], ))
-                    accountDoctor = cursor.fetchone()
-                    session['idDoctor'] = accountDoctor['id']
-                elif account['tipo'] == 'Secretario':
-                    cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s', (session['id'], ))
-                    accountSecretario = cursor.fetchone()
-                    session['idSecretario'] = accountSecretario['id']
-                else:
-                    session['idPaciente'] = session['id']
-                return redirect(url_for('agendar'))
-            else:
-                msg = 'Usuario no existe.'
-        elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dob' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'domicilio' in request.form and 'passwordRegistro' in request.form and 'tipo_sangre' in request.form:
-            correo = request.form['correo_electronico_r']
-            nombre = request.form['nombre']
-            apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
-            sexo = request.form['sexo']
-            telefono = request.form['telefono']
-            domicilio = request.form['domicilio']
-            password = request.form['passwordRegistro']
-            fechanacimiento = request.form['dob']
-            tipo_sangre = request.form['tipo_sangre']
-            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
-            account = cursor.fetchone()
-            if account:
-                msg = 'Este correo ya esta registrado!'
-            elif password_check(password) == False:
-                msg = 'Contraseña no valida!'
-            else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Paciente', tipo_sangre,))
-                mysql.connection.commit()
-                cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
+        try:
+            if request.method == 'POST' and 'login' in request.form and 'password' in request.form:
+                correo = request.form['login']
+                contrasenia = request.form['password']
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                cursor.execute('SELECT * FROM usuario WHERE correo = % s AND contrasenia = % s', (correo, contrasenia, ))
                 account = cursor.fetchone()
-                msg = 'Registro exitoso!'    
+                if account:
+                    if account['activo'] == 1:
+                        session['id'] = account['id']
+                        session['loggedin'] = True
+                        session['nombre'] = account['nombre']
+                        session['apellido'] = account['apellido']
+                        session['correo'] = account['correo']
+
+                        if account['tipo'] == 'Admin':
+                            session['admin'] = True
+                        elif account['tipo'] == 'Doctor':
+                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s', (session['id'], ))
+                            accountDoctor = cursor.fetchone()
+                            session['idDoctor'] = accountDoctor['id']
+                        elif account['tipo'] == 'Secretario':
+                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s', (session['id'], ))
+                            accountSecretario = cursor.fetchone()
+                            session['idSecretario'] = accountSecretario['id']
+                        else:
+                            session['idPaciente'] = session['id']
+
+                        return redirect(url_for('agendar'))
+                    else:
+                        msg = 'CUENTA NO ACTIVADA. Por favor, revise su correo para activar su cuenta.'
+                else:
+                    msg = 'Usuario no existe o contraseña incorrecta.'
+
+            elif request.method == 'POST' and 'nombre' in request.form and 'apellido-paterno' in request.form and 'apellido-materno' in request.form and 'sexo' in request.form and 'dob' in request.form and 'telefono' in request.form and 'correo_electronico_r' in request.form and 'domicilio' in request.form and 'passwordRegistro' in request.form and 'tipo_sangre' in request.form:
+                correo = request.form['correo_electronico_r']
+                nombre = request.form['nombre']
+                apellidos = request.form['apellido-paterno'] +" "+ request.form['apellido-materno']
+                sexo = request.form['sexo']
+                telefono = request.form['telefono']
+                domicilio = request.form['domicilio']
+                password = request.form['passwordRegistro']
+                fechanacimiento = request.form['dob']
+                tipo_sangre = request.form['tipo_sangre']
+                cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+                cursor.execute('SELECT correo FROM usuario WHERE correo = %s', (correo,))
+                account = cursor.fetchone()
+                if account:
+                    msg = 'Este correo ya esta registrado!'
+                elif password_check(password) == False:
+                    msg = 'Contraseña no valida!'
+                else:
+                    # Genera un código de activación único
+                    codigo_activacion = secrets.token_urlsafe(16)
+
+                    cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Paciente', tipo_sangre, codigo_activacion,))
+
+                    # Envía un correo de activación al usuario
+                    send_activation_email(correo, codigo_activacion)
+                    mysql.connection.commit()
+
+                    cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
+                    account = cursor.fetchone()
+                    msg = 'Registro exitoso! Se ha enviado un correo de activación a tu dirección.'
+
+        except Exception as e:
+            print(f"Error en el proceso de inicio de sesión o registro: {e}")
+            msg = 'Error en el proceso de inicio de sesión o registro. Por favor, inténtelo nuevamente.'   
+        
         return render_template('log_in.html', msg = msg)
     else:
         return redirect(url_for('agendar'))
+    
+# Ruta para enviar el correo electrónico de restablecimiento de contraseña
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM usuario WHERE correo = %s', (email,))
+        user = cursor.fetchone()
+        if user:
+            # Envía el correo electrónico de restablecimiento de contraseña
+            send_password_reset_email(email)
+            flash('Revisa tu correo electrónico y sigue las instrucciones para restablecer tu contraseña.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('Correo no registrado.', 'danger')
+
+    return render_template('reset_pass_request.html')
+
+# Configura la conexión a la base de datos (ajusta según tus credenciales y configuración)
+#db = MySQLdb.connect(host="146.190.218.21", user="muelitas", passwd="CONTRASENIAENMINUSCULAS", db="muelassist_sql")
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    if 'reset_token' in session and 'reset_email' in session:
+        if token == session['reset_token']:
+            if request.method == 'POST':
+                new_password = request.form['new_password']
+                confirm_password = request.form['confirm_password']
+
+                if new_password == confirm_password:
+                    # Obtiene el usuario basado en el correo electrónico almacenado en la sesión
+                    cursor.execute('SELECT * FROM usuario WHERE correo = %s', (session['reset_email'],))
+                    user_data = cursor.fetchone()
+
+                    if user_data:
+                        # Actualiza la contraseña del usuario en la base de datos
+                        cursor.execute('UPDATE usuario SET contrasenia = %s WHERE correo = %s', (new_password, session['reset_email']))
+                        mysql.connection.commit()
+                        
+                        flash('Tu contraseña se ha restablecido correctamente.', 'success')
+                        session.pop('reset_token', None)
+                        session.pop('reset_email', None)
+                        return redirect(url_for('login'))
+                    else:
+                        flash('Usuario no encontrado.', 'danger')
+                else:
+                    flash('Las contraseñas no coinciden.', 'danger')
+
+            return render_template('reset_password.html', token=token)
+        else:
+            flash('Token de restablecimiento no válido o caducado.', 'danger')
+            return redirect(url_for('login'))
+    else:
+        flash('Token de restablecimiento no válido o caducado.', 'danger')
+        return redirect(url_for('login'))
+
+
+
+# Función para enviar el correo electrónico de restablecimiento de contraseña
+def send_password_reset_email(user_email):
+    token = secrets.token_urlsafe(20)
+    session['reset_token'] = token
+    session['reset_email'] = user_email
+
+    reset_url = url_for('reset_password', token=token, _external=True)
+
+    msg = Message('Solicitud de restablecimiento de contraseña', 
+                  sender=('MuelAssist', 'muelassistcompany@gmail.com'), 
+                  recipients=[user_email])
+
+    # Utiliza render_template_string para cargar el contenido del archivo HTML
+    msg.html = render_template('reset_password_email.html', reset_url=reset_url)
+    mail.send(msg)
 
 #Ruta pagina de registro doctor
 @app.route('/register/doc', methods =['GET', 'POST'])

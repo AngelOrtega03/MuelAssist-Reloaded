@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="../static/css/estilo.css">
+<html>
+
+<head></head>
+
+<body>
+
+  <div class="wrapper fadeInDown">
+
+    <div id="FORMULARIO_CONTENIDO">
+
+      <!-- PESTAÑAS -->
+      <h2 class="active" id="iniciar-sesion"> Recupera tu contraseña </h2>
+
+      <!-- ICONO -->
+      <div class="fadeIn first">
+        <img src="../static/img/diente.png" id="icon" />
+      </div>
+
+      <!-- Sección de Inicio de Sesión (pantalla de inicio de sesión) -->
+      <div id="inicio-sesion-seccion">
+        <form action="{{url_for('forgot_password')}}" method="POST">
+          <h2 class="inactive2"> Ingresa por favor tu correo electronico para recuperar tu contraseña </h2>
+          <input type="email" id="pass_request" class="fadeIn second" name="email" placeholder="Ingresa tu correo electronico" required>
+          <input type="submit" class="fadeIn fourth" value="Enviar">
+        </form>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

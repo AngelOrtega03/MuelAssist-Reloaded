@@ -23,6 +23,12 @@ mysql = MySQL(app)
 #Ruta raiz
 @app.route('/')
 def start():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("UPDATE cita SET estado = 'Terminada' WHERE estado = 'En proceso' AND fecha_hora >= %s", (fecha_actual,))
+    mysql.connection.commit()
+    cursor.execute("DELETE FROM usuario WHERE borrar = 'SI' AND DATEDIFF(fecha_peticion_borrar, %s) >= 1", (fecha_actual,))
+    mysql.connection.commit()
     if 'loggedin' not in session:
         return redirect(url_for('inicio'))
     else:
@@ -344,6 +350,7 @@ def edicion_cita(id):
     msg = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cita = ''
+    estado = ''
     fecha_actual = datetime.now().strftime('%Y-%m-%d')
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -370,7 +377,11 @@ def edicion_cita(id):
         if existencia:
             msg = 'Ya hay una cita establecida en esa hora para el doctor y/o el paciente!'
         else:
-            cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s, motivo = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', motivo, id,))
+            if 'estado' in request.form:
+                estado = request.form['estado']
+                cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s, motivo = %s, estado = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', motivo, estado, id,))
+            else:
+                cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s, motivo = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', motivo, id,))
             mysql.connection.commit()
             msg = 'Cita actualizada con exito!'
     return render_template("cita_editar.html", fecha_actual = fecha_actual, msg = msg, cita = cita)

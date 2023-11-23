@@ -69,8 +69,17 @@ def edicion_cita(id):
         </div>
         <div>
             <label for="motivo">Motivo:</label>
-            <input type="text" id="motivo" name="motivo" placeholder="{{cita.motivo}}">
+            <input type="text" id="motivo" name="motivo" placeholder="{{cita.motivo}}" required>
         </div>
+        {% if session['idDoctor'] or session['admin'] %}
+        <div>
+            <label for="estado">Estado:</label>
+            <select id="estado" name="estado" required>
+                <option value="Pendiente de revision">Pendiente de revision</option>
+                <option value="En proceso">En proceso</option>
+            </select>
+        </div>
+        {% endif %}
         <div>
             <input type="submit" value="Actualizar Cita">
         </div>

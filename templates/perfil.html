@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        /* Estilos adicionales */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2; /* Color de fondo */
+        }
+        .top-bar {
+            background-color: #56baed;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            border-radius: 0 0 10px 10px;
+        }
+        .top-bar h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+        .profile-type {
+            font-size: 24px; /* Cambio de tamaño de la fuente */
+            font-weight: bold; /* Texto en negrita */
+            margin-top: 20px; /* Espaciado */
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            flex-wrap: wrap; /* Permite el ajuste para dispositivos pequeños */
+        }
+        .left-side {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative; /* Permite posicionar de forma relativa el botón */
+            margin-right: 50px; /* Espaciado entre las secciones */
+            margin-bottom: 30px; /* Espaciado entre la foto y el botón */
+        }
+        .right-side {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-picture {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 30px; /* Espaciado entre la imagen y el texto */
+            width: 150px; /* Tamaño de la imagen */
+            height: 150px; /* Tamaño de la imagen */
+        }
+        .profile-picture img {
+            border-radius: 50%;
+            width: 200px; /* Tamaño de la imagen */
+            height: 200px; /* Tamaño de la imagen */
+            object-fit: cover;
+        }
+        #file-input {
+            display: none;
+        }
+        .edit-buttons {
+            margin-top: 20px; /* Espaciado entre los botones y el texto */
+            display: flex;
+            justify-content: space-between; /* Alineación de los botones */
+        }
+        .edit-buttons button {
+            border-radius: 25px;
+            padding: 15px 30px; /* Tamaño de los botones */
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+        }
+        .appointments-button {
+            border-radius: 25px;
+            padding: 15px 30px; /* Tamaño del botón */
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #e0e0e0; /* Color gris claro */
+            border: 1px solid #999; /* Borde gris */
+        }
+        #popup1, #popup2 {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <a href="{{url_for('inicio')}}"><button style="border-radius: 50%; padding: 10px; background-color: #56baed;">&larr;</button></a>
+    <h1>Mi cuenta</h1>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="container">
+    <div class="left-side">
+        <!-- Foto de perfil -->
+        <div class="profile-picture" onclick="document.getElementById('file-input').click();">
+            <img src="../static/img/icono_camara.png" alt="Examinar Foto" id="profile-image">
+            <input type="file" id="file-input" accept="image/*" onchange="mostrarImagen(this)" />
+        </div>
+        <button class="appointments-button" onclick="verCitas()">Ver Citas</button>
+        <p class="profile-type">Doctor</p> <!-- Cambio de tamaño de la fuente -->
+    </div>
+    <div class="right-side">
+        <p>{{msg}}</p>
+        <h1>Mira y edita tu información personal</h1>
+        <p>Nombre: {{perfil.nombre}}</p>
+        <p>Apellidos: {{perfil.apellido}}</p>
+        <p>Sexo: {{perfil.sexo}}</p>
+        <p>Fecha de Nacimiento: {{perfil.fecha_nacimiento}}</p>
+        <p>Domicilio: {{perfil.domicilio}}</p>
+        {% if session['idDoctor'] or session['idSecretario'] %}
+        {% if session['idDoctor'] %}
+        <p>Cedula: {{datos_extra.cedula}}</p>
+        {% elif session['idSecretario'] %}
+        <p>Doctor asignado: Dr. {{datos_exta.nombre_doctor}} {{datos_exta.apellido_doctor}}</p>
+        {% endif %}
+        <p>RFC: {{datos_extra.rfc}}</p>
+        <p>CURP: {{datos_extra.curp}}</p>
+        <p>Experiencia Laboral:</p>
+        <p>{{exp_lab}}</p>
+        <p>Referencia Laboral:</p>
+        <p>{{ref_lab}}</p>
+        {% endif %}
+        <p>Correo Electrónico: {{perfil.correo}}</p>
+        <p>Número de Teléfono: {{perfil.telefono}}</p>
+        
+        <div class="edit-buttons">
+            <a href="{{url_for('editarperfil')}}"><button>Editar información</button></a>
+            {% if perfil.borrar == 'SI' %}
+            <button onclick="show2()">Recuperar cuenta</button>
+            {% else %}
+            <button class="delete-button" onclick="show1()">Eliminar cuenta</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<form method="post" action="{{url_for('perfil')}}">
+<div class="popup1" id="popup1">
+    <p>¿Desea borrar la cuenta? Los cambios se aplicaran en 24 horas</p>
+    <input type="submit" name="cancelar" id="cancelar" value="Si">
+    <input type="Button" value="No" onclick="hide1()">
+</div>   
+</form>
+
+<form method="post" action="{{url_for('perfil')}}">
+<div class="popup2" id="popup2">
+    <p>¿Desea recuperar la cuenta?</p>
+    <input type="submit" name="reactivar" id="reactivar" value="Si">
+    <input type="Button" value="No" onclick="hide2()">
+</div>   
+</form>
+
+<script>
+    function goBack() {
+        // Implementa la función para regresar
+    }
+
+    function show1() {
+        var popup = document.getElementById("popup1").style.display = 'block';
+    }
+
+    function hide1() {
+        var popup = document.getElementById("popup1").style.display = 'none'
+    }
+
+    function show2() {
+        var popup = document.getElementById("popup2").style.display = 'block';
+    }
+
+    function hide2() {
+        var popup = document.getElementById("popup2").style.display = 'none'
+    }
+    
+    function mostrarImagen(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('profile-image').src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    function editarInformacion() {
+        // Implementa la función para editar la información
+    }
+    
+    function confirmarEliminar() {
+        var confirmacion = confirm("¿Estás seguro de que quieres eliminar esta cuenta?");
+        if (confirmacion) {
+            // Implementa la eliminación de la cuenta
+        }
+    }
+
+    function verCitas() {
+        // Implementa la función para ver citas
+    }
+</script>
+</body>
+</html>

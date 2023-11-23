@@ -3,7 +3,7 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import os
 from assets.passcheck import password_check
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_mail import Mail, Message
 import secrets
 import string
@@ -41,7 +41,7 @@ def start():
     fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("UPDATE cita SET estado = 'Terminada' WHERE estado = 'En proceso' AND fecha_hora >= %s", (fecha_actual,))
     mysql.connection.commit()
-    cursor.execute("DELETE FROM usuario WHERE borrar = 'SI' AND DATEDIFF(fecha_peticion_borrar, %s) >= 1", (fecha_actual,))
+    cursor.execute("UPDATE usuario SET verificacion = 1 WHERE borrar = 'SI' AND fecha_peticion_borrar <= %s", (fecha_actual,))
     mysql.connection.commit()
     if 'loggedin' not in session:
         return redirect(url_for('inicio'))
@@ -111,7 +111,7 @@ def login():
                 correo = request.form['login']
                 contrasenia = request.form['password']
                 cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-                cursor.execute('SELECT * FROM usuario WHERE correo = % s AND contrasenia = % s', (correo, contrasenia, ))
+                cursor.execute('SELECT * FROM usuario WHERE correo = % s AND contrasenia = % s AND verificacion = 0', (correo, contrasenia, ))
                 account = cursor.fetchone()
                 if account:
                     if account['activo'] == 1:
@@ -124,11 +124,11 @@ def login():
                         if account['tipo'] == 'Admin':
                             session['admin'] = True
                         elif account['tipo'] == 'Doctor':
-                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s', (session['id'], ))
+                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
                             accountDoctor = cursor.fetchone()
                             session['idDoctor'] = accountDoctor['id']
                         elif account['tipo'] == 'Secretario':
-                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s', (session['id'], ))
+                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
                             accountSecretario = cursor.fetchone()
                             session['idSecretario'] = accountSecretario['id']
                         else:
@@ -284,8 +284,15 @@ def registro_doctor():
             elif password_check(password) == False:
                 msg = 'Contraseña no valida!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, domicilio, tipo, tipo_sangre) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, domicilio,'Doctor', tipo_sangre,))
+                # Genera un código de activación único
+                codigo_activacion = secrets.token_urlsafe(16)
+
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Doctor', tipo_sangre, codigo_activacion,))
+
+                # Envía un correo de activación al usuario
+                send_activation_email(correo, codigo_activacion)
                 mysql.connection.commit()
+
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                 account2 = cursor.fetchone()
                 path = 'static/info/lab'
@@ -296,7 +303,7 @@ def registro_doctor():
                 print(account2['id'])
                 cursor.execute('INSERT INTO doctor (id_usuario, cedula, rfc, curp, experiencia_laboral, referencia_laboral) VALUES (%s, %s, %s, %s, %s, %s)', (account2['id'],cedula,rfc,curp,path+'exp'+str(account2['id'])+'.txt', path+'ref'+str(account2['id'])+'.txt',))
                 mysql.connection.commit()
-                msg = 'Registro exitoso!'    
+                msg = 'Registro exitoso! Se ha enviado un correo de activación a tu dirección.'   
         return render_template('registerDoc.html', msg = msg)
     else:
         abort(403)
@@ -383,15 +390,39 @@ def visualizacioncontacto(id):
         return render_template("contacto.html", contacto = contacto)
 
 #Ruta pagina de informacion de perfil
-@app.route('/perfil')
+@app.route('/perfil', methods =['GET', 'POST'])
 def perfil():
+    msg = ''
+    exp_lab = ''
+    ref_lab = ''
+    datos_extra = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
         cursor.execute('SELECT * FROM usuario WHERE id = %s', (session['id'],))
         perfil = cursor.fetchone()
-        return render_template("perfil.html", perfil = perfil)
+        if 'idDoctor' in session or 'idSecretario' in session:
+            if 'idDoctor':
+                cursor.execute('SELECT * FROM doctor WHERE id_usuario = %s', (session['id'],))
+            elif 'idSecretario':
+                cursor.execute('SELECT * FROM SecretariosInformacionCompleta WHERE id_usuario = %s', (session['id'],))
+            datos_extra = cursor.fetchone()
+            f1 = open('static/info/labexp'+str(session['id'])+'.txt', "r")
+            exp_lab = f1.read()
+            f2 = open('static/info/labref'+str(session['id'])+'.txt', "r")
+            ref_lab = f2.read()
+        if request.method == 'POST' and 'cancelar' in request.form:
+            fecha_actual = datetime.now() + timedelta(hours=24)
+            fecha_borrar = fecha_actual.strftime('%Y-%m-%d %H:%M:%S')
+            cursor.execute("UPDATE usuario SET borrar = 'SI', fecha_peticion_borrar = %s WHERE id = %s", (fecha_borrar,session['id'],))
+            mysql.connection.commit()
+            msg = 'Tu perfil se borrara en la fecha '+fecha_borrar
+        elif request.method == 'POST' and 'reactivar' in request.form:
+            cursor.execute("UPDATE usuario SET borrar = 'NO', fecha_peticion_borrar = '0000-00-00 00:00:00' WHERE id = %s", (session['id'],))
+            mysql.connection.commit()
+            msg = 'Tu perfil se reactivo'
+        return render_template("perfil.html", msg = msg, perfil = perfil, exp_lab = exp_lab, ref_lab = ref_lab, datos_extra = datos_extra)
 
 #Ruta pagina de edicion de informacion de perfil
 @app.route('/perfil/editar', methods =['GET', 'POST'])

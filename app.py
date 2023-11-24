@@ -43,6 +43,10 @@ def start():
     fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("UPDATE cita SET estado = 'Terminada' WHERE estado = 'En proceso' AND fecha_hora >= %s", (fecha_actual,))
     mysql.connection.commit()
+    cursor.execute("SELECT * FROM usuario WHERE verificacion = 0 AND borrar = 'SI' AND fecha_peticion_borrar <= %s", (fecha_actual,))
+    cuentas_a_borrar = cursor.fetchall()
+    for cuenta in cuentas_a_borrar:
+        send_account_deleted_email(cuenta['correo'])
     cursor.execute("UPDATE usuario SET verificacion = 1 WHERE borrar = 'SI' AND fecha_peticion_borrar <= %s", (fecha_actual,))
     mysql.connection.commit()
     if 'loggedin' not in session:
@@ -101,6 +105,30 @@ def send_activation_email(correo, codigo_activacion):
     activation_link = url_for('activate_account', code=codigo_activacion, _external=True)
     msg = Message('Activa tu cuenta', sender='tu_correo@example.com', recipients=[correo])
     msg.body = f'Haz clic en el siguiente enlace para activar tu cuenta: {activation_link}'
+    mail.send(msg)
+
+# Función para enviar el correo de notificacion de cita
+def send_appointment_email(correo, cita):
+    msg = Message('Tienes una cita agendada', sender='tu_correo@example.com', recipients=[correo])
+    msg.body = f"Enhorabuena! Tienes una cita agendada para el : {cita['fecha_hora']}\nDoctor: Dr. {cita['nombre_doctor']} {cita['apellido_doctor']}\nPaciente: {cita['nombre_paciente']} {cita['apellido_paciente']}\nMotivo: {cita['motivo']}\nEstado: {cita['estado']}"
+    mail.send(msg)
+
+# Función para enviar el correo de notificacion de modificacion de cita
+def send_appointment_edit_email(correo, cita):
+    msg = Message('Con respecto a tu cita...', sender='tu_correo@example.com', recipients=[correo])
+    msg.body = f"La informacion actual de tu cita es la siguiente : {cita['fecha_hora']}\nDoctor: Dr. {cita['nombre_doctor']} {cita['apellido_doctor']}\nPaciente: {cita['nombre_paciente']} {cita['apellido_paciente']}\nMotivo: {cita['motivo']}\nEstado: {cita['estado']}"
+    mail.send(msg)
+
+# Función para enviar el correo de notificacion de proceso de eliminacion de cuenta
+def send_account_cancel_email(correo, cuenta):
+    msg = Message('Tu cuenta se borrara el :'+str(cuenta['fecha_peticion_borrar']), sender='tu_correo@example.com', recipients=[correo])
+    msg.body = f"El proceso de eliminacion de su cuenta ha empezado.\nDejara de tener acceso a su cuenta el {cuenta['fecha_peticion_borrar']}\n\nEn caso de haberlo pensado dos veces y quiere seguir usando nuestro servicio, por favor, ingrese a su Perfil y cancele el proceso."
+    mail.send(msg)
+
+# Función para enviar el correo de notificacion de eliminacion de cuenta
+def send_account_deleted_email(correo):
+    msg = Message('Tu cuenta ha sido borrada', sender='tu_correo@example.com', recipients=[correo])
+    msg.body = f"Como mencionamos anteriormente en un correo, su cuenta ha sido borrada de nuestro sistema.\nLamentamos que nuestro servicio no haya sido de su agrado, sin embargo, si decide volver con nosotros, no dude en volvernos a contactar\n\nDe antemano, gracias por su atencion."
     mail.send(msg)
 
 #Ruta pagina de login y registro
@@ -440,6 +468,7 @@ def perfil():
             fecha_borrar = fecha_actual.strftime('%Y-%m-%d %H:%M:%S')
             cursor.execute("UPDATE usuario SET borrar = 'SI', fecha_peticion_borrar = %s WHERE id = %s", (fecha_borrar,session['id'],))
             mysql.connection.commit()
+            send_account_cancel_email(session['correo'], perfil)
             msg = 'Tu perfil se borrara en la fecha '+fecha_borrar
         elif request.method == 'POST' and 'reactivar' in request.form:
             cursor.execute("UPDATE usuario SET borrar = 'NO', fecha_peticion_borrar = '0000-00-00 00:00:00' WHERE id = %s", (session['id'],))
@@ -530,6 +559,10 @@ def agendar():
                 cursor.execute('INSERT INTO cita(id_doctor, id_paciente, fecha_hora, estado, motivo) VALUES (%s, %s, %s, %s, %s)', (id_doctor, id_paciente, fecha_hora, estado, motivo,))
                 mysql.connection.commit()
                 msg = 'Cita registrada con exito!'
+                cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE id_doctor = %s AND id_paciente = %s AND fecha_hora = %s', (id_doctor, id_paciente, fecha_hora,))
+                cita = cursor.fetchone()
+                send_appointment_email(cita['correo_doctor'], cita)
+                send_appointment_email(cita['correo_paciente'], cita)
         return render_template("agendar_cita_2.html", fecha_actual = fecha_actual, msg = msg, doctores = doctores, pacientes = pacientes)
 
 #Ruta de pagina de visualizacion individual de cita
@@ -599,6 +632,10 @@ def edicion_cita(id):
                 cursor.execute('UPDATE cita SET fecha_hora = %s, estado = %s, motivo = %s WHERE id = %s', (fecha_hora, 'Pendiente de revision', motivo, id,))
             mysql.connection.commit()
             msg = 'Cita actualizada con exito!'
+            cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE id_cita = %s', (id,))
+            cita = cursor.fetchone()
+            send_appointment_edit_email(cita['correo_doctor'], cita)
+            send_appointment_edit_email(cita['correo_paciente'], cita)
     return render_template("cita_editar.html", fecha_actual = fecha_actual, msg = msg, cita = cita)
 
 #Ruta de agenda de citas

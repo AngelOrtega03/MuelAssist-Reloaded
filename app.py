@@ -9,6 +9,7 @@ from flask_mail import Mail, Message
 import secrets
 import string
 from flask import render_template_string
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 app = Flask(__name__)
@@ -112,9 +113,10 @@ def login():
                 correo = request.form['login']
                 contrasenia = request.form['password']
                 cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-                cursor.execute('SELECT * FROM usuario WHERE correo = % s AND contrasenia = % s AND verificacion = 0', (correo, contrasenia, ))
+                cursor.execute('SELECT * FROM usuario WHERE correo = % s AND verificacion = 0', (correo, ))
                 account = cursor.fetchone()
-                if account:
+
+                if check_password_hash(account['contrasenia'],contrasenia) == True:
                     if account['activo'] == 1:
                         session['id'] = account['id']
                         session['loggedin'] = True
@@ -159,10 +161,13 @@ def login():
                 elif password_check(password) == False:
                     msg = 'Contraseña no valida!'
                 else:
+                    # Genera un hash en la contraseña
+                    contraseña_hasheada = generate_password_hash(password, 'pbkdf2')
+
                     # Genera un código de activación único
                     codigo_activacion = secrets.token_urlsafe(16)
 
-                    cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Paciente', tipo_sangre, codigo_activacion,))
+                    cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, contraseña_hasheada, 'Paciente', tipo_sangre, codigo_activacion,))
 
                     # Envía un correo de activación al usuario
                     send_activation_email(correo, codigo_activacion)
@@ -210,14 +215,18 @@ def reset_password(token):
                 new_password = request.form['new_password']
                 confirm_password = request.form['confirm_password']
 
-                if new_password == confirm_password:
+                if new_password == confirm_password and password_check(new_password) == True:
+
                     # Obtiene el usuario basado en el correo electrónico almacenado en la sesión
                     cursor.execute('SELECT * FROM usuario WHERE correo = %s', (session['reset_email'],))
                     user_data = cursor.fetchone()
 
                     if user_data:
+                        #Encripta la contraseña
+                        contraseña_hasheada = generate_password_hash(new_password, 'pbkdf2')
+
                         # Actualiza la contraseña del usuario en la base de datos
-                        cursor.execute('UPDATE usuario SET contrasenia = %s WHERE correo = %s', (new_password, session['reset_email']))
+                        cursor.execute('UPDATE usuario SET contrasenia = %s WHERE correo = %s', (contraseña_hasheada, session['reset_email']))
                         mysql.connection.commit()
                         
                         flash('Tu contraseña se ha restablecido correctamente.', 'success')
@@ -227,7 +236,7 @@ def reset_password(token):
                     else:
                         flash('Usuario no encontrado.', 'danger')
                 else:
-                    flash('Las contraseñas no coinciden.', 'danger')
+                    flash('Las contraseñas no coinciden y/o no estan bajo los limites establecidos.', 'danger')
 
             return render_template('reset_password.html', token=token)
         else:
@@ -285,10 +294,13 @@ def registro_doctor():
             elif password_check(password) == False:
                 msg = 'Contraseña no valida!'
             else:
+                #Encripta la contraseña
+                contraseña_hasheada = generate_password_hash(password, 'pbkdf2')
+
                 # Genera un código de activación único
                 codigo_activacion = secrets.token_urlsafe(16)
 
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, password, 'Doctor', tipo_sangre, codigo_activacion,))
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, domicilio, contrasenia, tipo, tipo_sangre, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, domicilio, contraseña_hasheada, 'Doctor', tipo_sangre, codigo_activacion,))
 
                 # Envía un correo de activación al usuario
                 send_activation_email(correo, codigo_activacion)
@@ -343,8 +355,18 @@ def registro_secretario():
             elif password_check(password) == False:
                 msg = 'Contraseña no valida!'
             else:
-                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo, tipo_sangre, domicilio) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, password, 'Secretario', tipo_sangre, domicilio,))
+                #Encripta la contraseña
+                contraseña_hasheada = generate_password_hash(password, 'pbkdf2')
+
+                # Genera un código de activación único
+                codigo_activacion = secrets.token_urlsafe(16)
+
+                cursor.execute('INSERT INTO usuario (nombre, apellido, sexo, telefono, fecha_nacimiento, correo, contrasenia, tipo, tipo_sangre, domicilio, codigo_activacion) VALUES (% s, % s, % s, % s, % s, %s, %s, %s, %s, %s, %s)', (nombre, apellidos, sexo, telefono, fechanacimiento, correo, contraseña_hasheada, 'Secretario', tipo_sangre, domicilio, codigo_activacion,))
+                
+                # Envía un correo de activación al usuario
+                send_activation_email(correo, codigo_activacion)
                 mysql.connection.commit()
+
                 cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                 account = cursor.fetchone()
                 path = 'static/info/lab'
@@ -355,7 +377,7 @@ def registro_secretario():
                 print(account['id'])
                 cursor.execute('INSERT INTO secretario (id_usuario, id_doctor_afiliado, rfc, curp, experiencia_laboral, referencia_laboral) VALUES (%s, %s, %s, %s, %s, %s)', (account['id'], id_doctor_afiliado, rfc, curp, path+'exp'+str(account['id'])+'.txt', path+'ref'+str(account['id'])+'.txt',))
                 mysql.connection.commit()
-                msg = 'Registro exitoso!'
+                msg = 'Registro exitoso! Se ha enviado un correo de activación a tu dirección.'
         cursor.execute('SELECT * FROM DoctoresInformacionCompleta')
         doctores = cursor.fetchall()    
         return render_template('registerSec.html', msg = msg, doctores = doctores)

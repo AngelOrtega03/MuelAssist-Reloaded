@@ -187,11 +187,11 @@ def login():
                         if account['tipo'] == 'Admin':
                             session['admin'] = True
                         elif account['tipo'] == 'Doctor':
-                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
+                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s', (session['id'], ))
                             accountDoctor = cursor.fetchone()
                             session['idDoctor'] = accountDoctor['id']
                         elif account['tipo'] == 'Secretario':
-                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
+                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s', (session['id'], ))
                             accountSecretario = cursor.fetchone()
                             session['idSecretario'] = accountSecretario['id']
                         else:
@@ -457,7 +457,7 @@ def contacto():
             tipo = request.form['tipo']
             cursor.execute('SELECT * FROM usuario WHERE nombre = %s AND tipo = %s', (nombre, tipo,))
             contactos = cursor.fetchall()
-        return render_template("contacto.html", contactos = contactos)
+        return render_template("contactos.html", contactos = contactos)
     
 #Ruta pagina de contacto especifico
 @app.route('/contacto/<id>')
@@ -471,7 +471,7 @@ def visualizacioncontacto(id):
         tipoContacto = contacto['tipo']
         if 'idPaciente' in session and tipoContacto == 'Paciente':
             abort(404)
-        return render_template("contacto.html", contacto = contacto)
+        return render_template("contacto_visualizacion.html", contacto = contacto)
 
 #Ruta pagina de informacion de perfil
 @app.route('/perfil', methods =['GET', 'POST'])
@@ -529,7 +529,8 @@ def editarperfil():
             if 'file1' in request.files:
                 print('Imagen encontrada...')
                 imagen = request.files['file1']
-                path = os.path.join(app.config['UPLOAD_FOLDER'], imagen.filename)
+                file_name = generate_custom_name(imagen.filename)
+                path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
                 print(path)
                 imagen.save(path)
                 cursor.execute('UPDATE usuario SET imagen_perfil = %s WHERE id = %s', (path, session['id'],))

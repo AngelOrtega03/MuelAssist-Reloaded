@@ -11,6 +11,7 @@ import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt
+from passlib.hash import pbkdf2_sha256
 #Update de librerias
 
 app = Flask(__name__)

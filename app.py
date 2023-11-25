@@ -501,7 +501,10 @@ def editarperfil():
                 imagen.save(path)
                 cursor.execute('UPDATE usuario SET imagen_perfil = %s WHERE id = %s', (path, session['id'],))
                 mysql.connection.commit()
-            cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, domicilio = %s, telefono = %s, correo = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, domicilio, telefono, correo, contrasenia, session['id'],))
+            # Genera un hash en la contraseña
+            contraseña_hasheada = generate_password_hash(contrasenia, 'pbkdf2')
+
+            cursor.execute('UPDATE usuario SET nombre = %s, apellido = %s, domicilio = %s, telefono = %s, correo = %s, contrasenia = %s WHERE id = %s', (nombre, apellido, domicilio, telefono, correo, contraseña_hasheada, session['id'],))
             mysql.connection.commit()
             print('Datos actualizados!')
             msg = 'Datos actualizados!'
@@ -801,25 +804,6 @@ def visualizacion_expediente(id):
         f = open(expediente['info'], "r")
         contenido = f.read()
     return render_template('expediente_visualizacion.html', cambio_reciente = cambio_reciente, expediente = expediente, contenido = contenido)
-
-#Ruta de cambios hechos al expediente
-@app.route('/expediente/<id>/cambios')
-def cambios_expediente(id):
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    flag = False
-    if 'loggedin' not in session:
-        return redirect(url_for('login'))
-    elif 'idPaciente' in session or 'idDoctor' in session or 'idSecretario' in session:
-        cursor.execute('SELECT id_usuario FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s', (id, session['id'],))
-        permiso = cursor.fetchone()
-        if(permiso):
-            flag = True
-        else:
-            return redirect(url_for('expedientes'))
-    if flag or 'admin' in session:
-        cursor.execute('SELECT * FROM cambios WHERE id_expediente = %s', (id,))
-        cambios = cursor.fetchall()
-    return render_template('expediente_cambios.html', cambios = cambios)
 
 #Ruta de edicion al expediente
 @app.route('/expediente/<id>/editar', methods =['GET', 'POST'])

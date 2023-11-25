@@ -10,6 +10,7 @@ import secrets
 import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
+import base64
 
 
 app = Flask(__name__)
@@ -53,7 +54,7 @@ def start():
         return redirect(url_for('inicio'))
     else:
 	    return redirect(url_for('agendar'))
-
+    
 #Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
@@ -97,38 +98,69 @@ def register():
     # Envia el correo de activación
     send_activation_email(correo, codigo_activacion)
 
-    # Redirige a una página de éxito o a donde prefieras
+    # Redirige a una página de éxito
     return render_template('registration_success.html')
 
 # Función para enviar el correo de activación
 def send_activation_email(correo, codigo_activacion):
     activation_link = url_for('activate_account', code=codigo_activacion, _external=True)
-    msg = Message('Activa tu cuenta', sender='tu_correo@example.com', recipients=[correo])
-    msg.body = f'Haz clic en el siguiente enlace para activar tu cuenta: {activation_link}'
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('activation_email.html',activation_link=activation_link)
+    msg = Message('Activa tu cuenta', sender = ('MuelAssist', 'tu_correo@example.com'), recipients=[correo])
+    msg.html = email_content
     mail.send(msg)
 
 # Función para enviar el correo de notificacion de cita
 def send_appointment_email(correo, cita):
-    msg = Message('Tienes una cita agendada', sender='tu_correo@example.com', recipients=[correo])
-    msg.body = f"Enhorabuena! Tienes una cita agendada para el : {cita['fecha_hora']}\nDoctor: Dr. {cita['nombre_doctor']} {cita['apellido_doctor']}\nPaciente: {cita['nombre_paciente']} {cita['apellido_paciente']}\nMotivo: {cita['motivo']}\nEstado: {cita['estado']}"
+    subject = 'Tienes una cita agendada'
+    sender = 'tu_correo@example.com'
+    recipients = [correo]
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('appointment_email.html', cita=cita)
+
+    msg = Message(subject, sender = ('MuelAssist', 'tu_correo@example.com'), recipients=recipients)
+    msg.html = email_content
     mail.send(msg)
 
 # Función para enviar el correo de notificacion de modificacion de cita
 def send_appointment_edit_email(correo, cita):
-    msg = Message('Con respecto a tu cita...', sender='tu_correo@example.com', recipients=[correo])
-    msg.body = f"La informacion actual de tu cita es la siguiente : {cita['fecha_hora']}\nDoctor: Dr. {cita['nombre_doctor']} {cita['apellido_doctor']}\nPaciente: {cita['nombre_paciente']} {cita['apellido_paciente']}\nMotivo: {cita['motivo']}\nEstado: {cita['estado']}"
+    subject = 'Tu cita a sido modificada con exito'
+    sender = 'tu_correo@example.com'
+    recipients = [correo]
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('appointment_edit_email.html', cita=cita)
+
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.html = email_content
     mail.send(msg)
 
 # Función para enviar el correo de notificacion de proceso de eliminacion de cuenta
 def send_account_cancel_email(correo, cuenta):
-    msg = Message('Tu cuenta se borrara el :'+str(cuenta['fecha_peticion_borrar']), sender='tu_correo@example.com', recipients=[correo])
-    msg.body = f"El proceso de eliminacion de su cuenta ha empezado.\nDejara de tener acceso a su cuenta el {cuenta['fecha_peticion_borrar']}\n\nEn caso de haberlo pensado dos veces y quiere seguir usando nuestro servicio, por favor, ingrese a su Perfil y cancele el proceso."
+    subject = f'Tu cuenta se borrará el {cuenta["fecha_peticion_borrar"]}'
+    sender = ('MuelAssist', 'tu_correo@example.com')
+    recipients = [correo]
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('account_cancel_email.html', cuenta=cuenta)
+
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.html = email_content
     mail.send(msg)
 
 # Función para enviar el correo de notificacion de eliminacion de cuenta
 def send_account_deleted_email(correo):
-    msg = Message('Tu cuenta ha sido borrada', sender='tu_correo@example.com', recipients=[correo])
-    msg.body = f"Como mencionamos anteriormente en un correo, su cuenta ha sido borrada de nuestro sistema.\nLamentamos que nuestro servicio no haya sido de su agrado, sin embargo, si decide volver con nosotros, no dude en volvernos a contactar\n\nDe antemano, gracias por su atencion."
+    subject = 'Tu cuenta ha sido borrada'
+    sender = ('MuelAssist', 'tu_correo@example.com')
+    recipients = [correo]
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('account_deleted_email.html')
+
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.html = email_content
     mail.send(msg)
 
 #Ruta pagina de login y registro
@@ -203,7 +235,7 @@ def login():
 
                     cursor.execute('SELECT id FROM usuario WHERE correo = %s', (correo,))
                     account = cursor.fetchone()
-                    msg = 'Registro exitoso! Se ha enviado un correo de activación a tu dirección.'
+                    msg = 'Registro exitoso, Se ha enviado un correo de activación a tu dirección de correo electronico registrada.'
 
         except Exception as e:
             print(f"Error en el proceso de inicio de sesión o registro: {e}")

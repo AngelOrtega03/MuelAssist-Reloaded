@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienes una cita agendada</title>
+</head>
+<body style="font-family: Arial, sans-serif; font-size: 18px; line-height: 1.6; margin: 0; padding: 0; background-color: #56baed; color: #ffffff;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        
+        <h1 style="font-size: 20px; margin-bottom: 10px; color: #ffffff;">Gracias por utilizar MuelaAssit, su nueva cita ha sido registrada con exito.</h1>
+        <p style="font-size: 24px; margin-bottom: 10px; color: #ffffff;">Hola {{ cita['nombre_paciente'] }} {{ cita['apellido_paciente'] }} su cambio de cita fue hecho de manera satisfactoria. </p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">La nueva información de tu cita es la siguiente:</p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">Fecha y Hora: {{ cita['fecha_hora'] }}</p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">Doctor: Dr. {{ cita['nombre_doctor'] }} {{ cita['apellido_doctor'] }}</p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">Paciente: {{ cita['nombre_paciente'] }} {{ cita['apellido_paciente'] }}</p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">Motivo: {{ cita['motivo'] }}</p>
+        <p style="font-size: 18px; margin-bottom: 10px; color: #ffffff;">Estado: {{ cita['estado'] }}</p>
+        <f style="font-size: 4px; margin-bottom: 15px; text-align: center; color: #ff0000;">Si usted no hizo este cambio favor de contactarse con nosotros</f>
+        <f style="font-size: 4px; margin-bottom: 10px; text-align: center; color: #ffffff;">MuelaAssit agradece su preferencia</f>
+    
+     </div>
+
+</body>
+</html>

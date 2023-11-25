@@ -7,3 +7,4 @@ Flask-Login
 Flask-SQLAlchemy
 Flask-WTF
 Flask-Security
+Flask-Bcrypt

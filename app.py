@@ -11,7 +11,6 @@ import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt
-from passlib.hash import pbkdf2_sha256
 #Update de librerias
 
 app = Flask(__name__)
@@ -54,15 +53,12 @@ def start():
     if 'loggedin' not in session:
         return redirect(url_for('inicio'))
     else:
-	    return redirect(url_for('agendar'))
+	    return redirect(url_for('inicio'))
     
 #Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
-    if 'loggedin' not in session:
-        return render_template("inicio.html")
-    else:
-        return redirect(url_for('agendar'))
+    return render_template("inicio.html")
     
 # Ruta para activar la cuenta
 @app.route('/activate/<code>')
@@ -81,7 +77,7 @@ def activate_account(code):
     else:
         # Redirige a una página de error si el código no es válido
         return render_template('activation_error.html')
-    
+
 # Ruta de registro
 @app.route('/register', methods=['POST'])
 def register():
@@ -198,7 +194,7 @@ def login():
                         else:
                             session['idPaciente'] = session['id']
 
-                        return redirect(url_for('agendar'))
+                        return redirect(url_for('inicio'))
                     else:
                         msg = 'CUENTA NO ACTIVADA. Por favor, revise su correo para activar su cuenta.'
                 else:
@@ -245,7 +241,7 @@ def login():
         
         return render_template('log_in.html', msg = msg)
     else:
-        return redirect(url_for('agendar'))
+        return redirect(url_for('inicio'))
     
 # Ruta para enviar el correo electrónico de restablecimiento de contraseña
 @app.route('/forgot_password', methods=['GET', 'POST'])
@@ -444,7 +440,7 @@ def registro_secretario():
         doctores = cursor.fetchall()    
         return render_template('registerSec.html', msg = msg, doctores = doctores)
     else:
-        return redirect(url_for('agendar'))
+        return redirect(url_for('inicio'))
 
 #Ruta pagina de contactos
 @app.route('/contacto', methods =['GET', 'POST'])

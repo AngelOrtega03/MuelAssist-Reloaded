@@ -10,7 +10,6 @@ import secrets
 import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
-import base64
 
 
 app = Flask(__name__)

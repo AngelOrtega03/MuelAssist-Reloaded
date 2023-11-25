@@ -2,3 +2,4 @@ Flask
 Flask-MySQLdb
 gunicorn
 mysqlclient
+Flask-Mail

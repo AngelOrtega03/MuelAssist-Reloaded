@@ -9,3 +9,4 @@ Flask-WTF
 Flask-Security
 Flask-Bcrypt
 Werkzeug
+passlib

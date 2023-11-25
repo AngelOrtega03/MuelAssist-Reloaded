@@ -6,3 +6,4 @@ Flask-Mail
 Flask-Login
 Flask-SQLAlchemy
 Flask-WTF
+Flask-Security

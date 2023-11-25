@@ -107,7 +107,7 @@ def send_activation_email(correo, codigo_activacion):
 
     # Renderiza el contenido del archivo HTML
     email_content = render_template('activation_email.html',activation_link=activation_link)
-    msg = Message('Activa tu cuenta', sender = ('MuelAssist', 'tu_correo@example.com'), recipients=[correo])
+    msg = Message('Activa tu cuenta', sender=('MuelAssist', ''), recipients=[correo])
     msg.html = email_content
     mail.send(msg)
 
@@ -120,7 +120,7 @@ def send_appointment_email(correo, cita):
     # Renderiza el contenido del archivo HTML
     email_content = render_template('appointment_email.html', cita=cita)
 
-    msg = Message(subject, sender = ('MuelAssist', 'tu_correo@example.com'), recipients=recipients)
+    msg = Message(subject, sender = ('MuelAssist', ''), recipients=recipients)
     msg.html = email_content
     mail.send(msg)
 
@@ -133,7 +133,7 @@ def send_appointment_edit_email(correo, cita):
     # Renderiza el contenido del archivo HTML
     email_content = render_template('appointment_edit_email.html', cita=cita)
 
-    msg = Message(subject, sender=sender, recipients=recipients)
+    msg = Message(subject, sender=('MuelAssist', ''), recipients=recipients)
     msg.html = email_content
     mail.send(msg)
 
@@ -146,7 +146,7 @@ def send_account_cancel_email(correo, cuenta):
     # Renderiza el contenido del archivo HTML
     email_content = render_template('account_cancel_email.html', cuenta=cuenta)
 
-    msg = Message(subject, sender=sender, recipients=recipients)
+    msg = Message(subject, sender=('MuelAssist',''), recipients=recipients)
     msg.html = email_content
     mail.send(msg)
 
@@ -159,7 +159,7 @@ def send_account_deleted_email(correo):
     # Renderiza el contenido del archivo HTML
     email_content = render_template('account_deleted_email.html')
 
-    msg = Message(subject, sender=sender, recipients=recipients)
+    msg = Message(subject, sender=('MuelAssist',''), recipients=recipients)
     msg.html = email_content
     mail.send(msg)
 
@@ -317,7 +317,7 @@ def send_password_reset_email(user_email):
     reset_url = url_for('reset_password', token=token, _external=True)
 
     msg = Message('Solicitud de restablecimiento de contraseña', 
-                  sender=('MuelAssist', 'muelassistcompany@gmail.com'), 
+                  sender=('MuelAssist', ''), 
                   recipients=[user_email])
 
     # Utiliza render_template_string para cargar el contenido del archivo HTML

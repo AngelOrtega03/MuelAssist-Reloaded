@@ -10,7 +10,7 @@ import secrets
 import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
-
+#Update de librerias
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/img/usuarios/'

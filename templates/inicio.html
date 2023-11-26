@@ -1,139 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-
-
-
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/css/inicio.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <title>Pagina Principal</title>
-</head>
-
-<body>
-     <div class="scroll">
-    
-        <div class="cabezera">
-            <a href="inicio.html" class="muelassist">Muelassist</a>
-            <img src="../static/img/diente.png" id="icon">
-            <div class="menu">
-                {% if session['loggedin']%}
-                <a href="{{url_for('agendar')}}">Citas</a>
-                <a href="{{url_for('expedientes')}}">Expedientes</a>
-                <a href="{{url_for('contacto')}}">Contactos</a>
-                <a href="{{url_for('perfil')}}">Perfil</a>
-                <a href="{{url_for('logout')}}">Cerrar sesion</a>
-                {% else %}
-                <a href="{{url_for('login')}}">Iniciar Sesion</a>
-                {% endif %}
+<html>
+    <head>
+        <title>MuelaAsisst</title>
+        <link rel="stylesheet" href="../static/css/index_estilo.css">         
+    </head>
+    <body>
+        <header class="main-header">
+        <div class="container container--flex">
+            <h1 class="main-title"><span class="color-span">Muel</span>Asisst</h1>
+            <nav class="main-nav">
+            <span class="icon-menu" id="btn-menu"><i class="fas fa-bars"></i></span>
+            <ul class="menu" id="menu">
+                <li class="menu__item"><a href="" class="menu__link menu__link--select"><span>Inicio</span></a></li>
+                <li class="menu__item"><a href="" class="menu__link"><span>Servicios</span></a></li>
+                <li class="menu__item"><a href="" class="menu__link"><span>Equipo</span></a></li>
+                <li class="menu__item"><a href="" class="menu__link"><span>Contacto</span></a></li>
+            </ul>
+            </nav>
+        </div>
+        </header>
+        <div class="banner">
+            <div class="banner__content">
+                <div class="container"></div>
             </div>
-        </div>        
-
-         <div class="cajaext">
-         <div class="cajaBienvenido">
-         <div>
-            <h2 class="titulo">Bienvenido a Muelassist</h2>
-            <h3>Consigue tu sonrisa perfecta en nuestro consultorio,<br> 
-            donde nuestro equipo de profesionales cualificados te ayudará a <br> 
-            conseguir resultados sorprendentes. 
-            <br>¡No esperes más para agendar tu cita!</h3>
-          </div>
-         <div class="caja">
-         <div class="citasMensuales">
-            <h2>100</h2>
-            <p>Citas mensuales aproximadas</p>
         </div>
-        <div class="citasMensuales">
-            <h2>150</h2>
-            <p>Tratamientos exitosos</p>
+        <button class="login-btn">Agenda una cita</button>
+        <main class="main">
+        <section class="welcome">
+            <h2 class="section__title">¡Bienvenido!</h2>
+            <p class="welcome__txt">Imagina poder reservar tus citas médicas desde la comodidad de tu hogar o cualquier lugar con acceso a Internet. Nuestra Agenda Clínica Online simplifica el proceso, permitiéndote gestionar tus citas con facilidad y rapidez. En nuestro consultorio dental virtual, tu comodidad y bienestar son nuestras prioridades. Únete a nosotros en esta nueva era de atención dental, donde cada clic te acerca a una sonrisa más saludable. ¡Descubre la simplicidad de la Agenda Dental Online y toma el control de tu salud oral hoy mismo!</p>
+            <img class="dientito" src="static/img/dienteIcon.png">
+        </section>
+        <section class="container-design">
+            <div class="design__item">
+            <h3 class="design__title">Blanqueamiento dental</h3>
+            <img src="static/img/blanqueamiento.jpg" alt="" class="design__img">
+            </div>
+            <div class="design__item">
+            <h3 class="design__title">Ortodoncia</h3>
+            <img src="static/img/ortodoncia.jpeg" alt="" class="design__img">
+            </div>
+            <div class="design__item">
+            <h3 class="design__title">Endodoncia</h3>
+            <img src="static/img/servicio.jpg" alt="" class="design__img">
+            </div>
+            <div class="design__item">
+            <h3 class="design__title">Cirugia</h3>
+            <img src="static/img/cirugia.jpg" alt="" class="design__img">
+            </div>
+        </section>
+        <section class="container-presentaciones">
+            <br>
+            <h3 class="section__title">Nuestro equipo</h3>
+            <div class="filaPresentacion">
+                <div class="columna">
+                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
+                    <p class="dr__name">Dr. Juan Pérez</p>
+                    <p class="especializacion__txt">Especialista en ortodoncia</p>
+                    <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
+                </div>
+                <div  class="columna">
+                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
+                    <p class="dr__name">Dra. Maria Elena Santos</p>
+                    <p class="especializacion__txt">Especialista en endodoncia</p>
+                    <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
+                </div>
+                <div  class="columna">
+                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
+                    <p class="dr__name">Cirujana Alma Mendez</p>
+                    <p class="especializacion__txt">Especialista en cirugia dental</p>
+                    <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
+                </div>
+            </div>
+        </section>
+        </main>
+        <footer class="main-footer">
+        <div class="container">
+            <div class="column column--50-25">
+            <h2 class="footer__title">Angeles L. Robledo</h2>
+            <h3>Clinica de higiene dental</h3>
+            
+            </div>
+            <div class="column column--50-25">
+            <h2 class="footer__title">Horario</h2>
+            <p class="footer__txt">Lunes a Sabado</p>
+            <p>07:00 - 12:00 hrs -- 14:00 a 18:00 hrs</p>
+            </div>
+            <div class="column column--50-25">
+            <h2 class="footer__title">Contacto</h2>
+            <div class="contact-icon">
+                <i class="fas fa-map-marker-alt"></i>
+                <p class="contact__txt">MuelaAsisst</p>
+            </div>
+            <div class="contact-icon">
+                <i class="fas fa-phone-alt"></i>
+                <p class="contact__txt">+52 922 131 7689</p>
+            </div>
+            <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+                <p class="contact__txt">MuelaAsisst@example.com</p>
+            </div>
+            </div>
         </div>
-        <div class="citasMensuales">
-            <h2>25</h2>
-            <p>Dentistas profesionales</p>
-        </div>
-     </div>
-     </div>
-     </div>
-    
-     <div class="login">
-        <h2 id="sesion">¿No tienes cuenta?</h2>
-
-        <p class=texto1>!!!Crea tu cuenta ahora mismo!!!.</p>
-        <p class=texto1>Esto te permitira agendar citas, cancelar citas, tener un perfil medico y mucho mas,<br>solo da clic al boton al siguiente boton.</p>
-        <div>
-        </div>
-        <div>
-
-    <a href="{{url_for('login')}}" class="enlace-personalizado">
-    <button class="login-button" id="signup-button" >Registrarse</button>
-    </a>
-        </div>
-     </div>
-
-     <div class="citas">
-        <h1 class="cuida">Cuida tu sonrisa,Cuida tu vida.</h1>
-        <div >
-            <button class="agendar-cita-button" id="agendar-cita-button">Agendar Cita</button>
-        </div>
-     </div>
-     <div class="sucursales-contacto">
-        <h1 class="title-suc-cont">Surcursales y Contacto</h1>
-        <div class="info">
-        <p>Tenemos sucursales en varias ciudades para ofrecerte<br> 
-        la mejor atención donde sea que te encuentres.<br> 
-        No dudes en contactarnos para más información sobre horarios, ubicaciones y servicios.<br>
-        Nuestro equipo de atención al cliente está disponible para responder tus preguntas y ayudarte a encontrar la sucursal más cercana
-    </p>
-        </div>
-     </div>
-     <div class="footer">
-        <a href="https://www.facebook.com" target="_blank">
-            <i class="fa-brands fa-facebook mi-icono" style="color: #56baed;"></i>
-          </a>
-
-          <a href="https://www.instagram.com" target="_blank">
-            <i class="fa-brands fa-square-instagram mi-icono" style="color: #56baed;"></i> 
-          </a>
-
-          <a href="https://www.tiktok.com/@sknpalomitas/video/7288907534834994438?q=baile%20del%20troleo&t=1700888117305" target="_blank">
-            <i class="fa-brands fa-tiktok mi-icono" style="color: #56baed;"></i>
-          </a>
-
-          <a href="https://www.google.com/maps/place/University+Centre+Of+Economic+And+Administrative+Sciences/@20.7438539,-103.3945287,15z/data=!4m6!3m5!1s0x8428afeb8049f335:0xc047ef950ecb0597!8m2!3d20.7407682!4d-103.380921!16s%2Fm%2F025wqj3?entry=ttu" target="_blank">
-            <i class="fa-solid fa-location-dot mi-icono" style="color: #56baed;"></i>
-          </a>
-          
-        <p>© 2023 MuelAssist, Todos los derechos reservados.</p>
-     </div>
-     </div>
-    
-    
-     <script>
-        // Obtén los botones por sus identificadores
-        const loginButton = document.getElementById("login-button");
-        const signupButton = document.getElementById("signup-button");
-        const citabutton = document.getElementById("agendar-cita-button");
-    
-        // Agrega un manejador de eventos al botón de inicio de sesión
-        loginButton.addEventListener("click", function() {
-            window.location.href = "log_in.html";
-        });
-        // Agrega un manejador de eventos al botón de registro
-        signupButton.addEventListener("click", function() {
-            window.location.href = "sign_up.html";
-        });
-
-        citabutton.addEventListener("click", function() {
-            window.location.href = "agendar_citas.html";
-        });
-      </script>
-      
-    
-    
-</body>
-
+            <p class="copy">© 2023 </span></p>
+        </footer>
+    <body>
 </html>

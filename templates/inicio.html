@@ -10,10 +10,22 @@
             <nav class="main-nav">
             <span class="icon-menu" id="btn-menu"><i class="fas fa-bars"></i></span>
             <ul class="menu" id="menu">
-                <li class="menu__item"><a href="" class="menu__link menu__link--select"><span>Inicio</span></a></li>
-                <li class="menu__item"><a href="" class="menu__link"><span>Servicios</span></a></li>
-                <li class="menu__item"><a href="" class="menu__link"><span>Equipo</span></a></li>
-                <li class="menu__item"><a href="" class="menu__link"><span>Contacto</span></a></li>
+                <li class="menu__item"><a href="{{url_for('inicio')}}" class="menu__link menu__link--select"><span>Inicio</span></a></li>
+                {% if session['loggedin'] %}
+                    <li class="menu__item"><a href="{{url_for('agendar')}}" class="menu__link"><span>Citas</span></a></li>
+                    <li class="menu__item"><a href="{{url_for('expedientes')}}" class="menu__link"><span>Expedientes</span></a></li>
+                    <li class="menu__item"><a href="{{url_for('contacto')}}" class="menu__link"><span>Contactos</span></a></li>
+                    <li class="menu__item"><a href="{{url_for('perfil')}}" class="menu__link"><span>Perfil</span></a></li>
+                    {% if session['admin'] or session['idDoctor'] %}
+                        <li class="menu__item"><a href="{{url_for('registro_secretario')}}" class="menu__link"><span>Registro Secretari@</span></a></li>
+                        {% if session['admin']%}
+                            <li class="menu__item"><a href="{{url_for('registro_doctor')}}" class="menu__link"><span>Registro Doctor</span></a></li>
+                        {% endif %}
+                    {% endif %}
+                    <li class="menu__item"><a href="{{url_for('logout')}}" class="menu__link"><span>Cerrar Sesion</span></a></li>
+                {% else %}
+                    <li class="menu__item"><a href="{{url_for('login')}}" class="menu__link"><span>Iniciar Sesion</span></a></li>
+                {% endif %}
             </ul>
             </nav>
         </div>
@@ -23,7 +35,7 @@
                 <div class="container"></div>
             </div>
         </div>
-        <button class="login-btn">Agenda una cita</button>
+        <a href="{{url_for('agendar')}}"><button class="login-btn">Agenda una cita</button></a>
         <main class="main">
         <section class="welcome">
             <h2 class="section__title">¡Bienvenido!</h2>
@@ -52,24 +64,14 @@
             <br>
             <h3 class="section__title">Nuestro equipo</h3>
             <div class="filaPresentacion">
+                {% for doctor in doctores %}
                 <div class="columna">
-                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
-                    <p class="dr__name">Dr. Juan Pérez</p>
+                    <img src="../{{doctor.imagen_perfil}}" alt="" class="testimonials__img">
+                    <p class="dr__name">Dr. {{doctor.nombre}} {{doctor.apellido}}</p>
                     <p class="especializacion__txt">Especialista en ortodoncia</p>
                     <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
                 </div>
-                <div  class="columna">
-                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
-                    <p class="dr__name">Dra. Maria Elena Santos</p>
-                    <p class="especializacion__txt">Especialista en endodoncia</p>
-                    <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
-                </div>
-                <div  class="columna">
-                    <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="" class="testimonials__img">
-                    <p class="dr__name">Cirujana Alma Mendez</p>
-                    <p class="especializacion__txt">Especialista en cirugia dental</p>
-                    <p class="presentacion__txt">Lider destacado en el campo de la ortodoncia. Con una dedicación excepcional al cuidado del paciente, y una pasión por lograr sonrisas saludables y radiantes. No solo contando con años de experiencia respaldandolo, sino también resultados impecables.</p>
-                </div>
+                {% endfor %}
             </div>
         </section>
         </main>

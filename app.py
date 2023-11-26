@@ -57,7 +57,10 @@ def start():
 #Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
-    return render_template("inicio.html")
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM DoctoresInformacionCompleta')
+    doctores = cursor.fetchall()
+    return render_template("inicio.html", doctores = doctores)
     
 # Ruta para activar la cuenta
 @app.route('/activate/<code>')

@@ -10,12 +10,11 @@ import secrets
 import string
 from flask import render_template_string
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_bcrypt import Bcrypt
 #Update de librerias
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/img/usuarios/'
-bcrypt = Bcrypt(app)
+
 app.secret_key = 'your secret key'
 
 # Configuración de Flask-Mail
@@ -223,7 +222,6 @@ def login():
                 else:
                     # Genera un hash en la contraseña
                     contraseña_hasheada = generate_password_hash(password, 'pbkdf2')
-
 
                     # Genera un código de activación único
                     codigo_activacion = secrets.token_urlsafe(16)

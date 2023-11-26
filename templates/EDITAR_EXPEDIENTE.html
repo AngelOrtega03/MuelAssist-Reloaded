@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <title>Crear expediente</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="style/alta_empleados_estilo.css">
+        <script>
+            function mostrarVentanaEmergente() {
+                document.getElementById('popup').style.display = 'block';
+            }
+            function cerrarVentanaEmergente() {
+                document.getElementById('popup').style.display = 'none';
+            }
+            function preguntaCompartir() {
+                cerrarVentanaEmergente();
+                var compartirPopup = window.open('', 'Compartir Expediente', 'width=400,height=300');
+                compartirPopup.document.write(`
+                <html>
+                <head>
+                    <title>Compartir Expediente</title>
+                </head>
+                <body>
+                    <p>¿Desea compartir el expediente?</p>
+                    <form>
+                    <label for="nombreUsuario">Nombre de Usuario:</label>
+                    <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="Ingresa el nombre del usuario" required><br>
+                    <label for="privilegios">Privilegios:</label>
+                    <select id="privilegios" name="privilegios">
+                        <option value="ver">Ver</option>
+                        <option value="modificar">Modificar</option>
+                    </select><br>
+                    <button type="button" onclick="compartirExpediente()">Compartir</button>
+                    </form>
+                </body>
+                </html>
+                `);
+            }
+        </script>
+
+    </head>
+    <body>
+        
+        <div class="fondo">
+        <div class="contenedor-imagen">
+            <img src="img/radiografia-de-implantes.jpg" >
+        </div>
+        <a class="regresar" href="LISTA_EXPEDIENTE.php">Regresar a la lista</a>
+        <form id="Form01" name="Form01" valign="center" align="middle" onsubmit="mostrarVentanaEmergente(); return false;">
+            <div class="tabla">
+            <H1>Expediente medico</H1>
+            
+            
+                <div class="columna cajas">
+                    <br><p>Nombre del doctos que creo el expediente || Nombre de quien modifique | fecha - hora</p>
+                    <!--<br><p>Juan Magallon Diaz, Odontologo ||  Lili Suarez, Cirujana | 24/11/23 - 17:09 hrs</p>-->
+                    <p>Datos de alta</p>
+                    <input type="text" class="medio" name="fechaHora" id="fechaHora" placeholder="Fecha y hora"/>
+                    <input type="text" class="chiqui" name="numConsul" id="numConsul"> N° Consultorio </input>
+                    <input type="text" class="chiqui" name="IdExp" id="IdExp"> ID Expediente</input><br>
+                    <input type="text" class="grande" name="motivoConsul" id="motivoConsul" placeholder="Motivo de la cita..."/><br>
+                    <br><p>Datos personales</p>
+                    <input type="text" class="nom" name="nombre" id="nombre" placeholder="Nombre completo"/>
+                    <input type="text" class="chiqui" name="sexo" id="sexo" placeholder="Sexo"/>
+                    <input type="text" class="chiqui" name="edad" id="edad" placeholder="Edad"/><br>
+                    <input type="text" class="grande" name="domicilio" id="domicilio" placeholder="Domicilio"/>
+                    <input type="text" class="medio" name="telefono" id="telefono" placeholder="Telefono"/><br>
+                    <br><p>Datos de salud</p>
+                    <textarea class="txt" data-component="textarea" placeholder="Historial clinico.." aria-labelledby="label_26"></textarea><br>
+                    <br><p>Observaciones</p>
+                    <textarea class="txt" data-component="textarea" aria-labelledby="label_26"></textarea><br>
+                    
+                    <form enctype="multipart/form-data" action="salva_archivo.php" method="post" >
+                    <br> <input type="file" id="archivo" name="archivo" class="imgArch">
+                    </form>
+                </div>
+            </div>
+            <input type="submit" class="guardar" onclick="mostrarVentanaEmergente();" value="Guardar expediente"/><br>          
+        </form>    
+        </div>
+       
+    </body>
+    <div id="popup">
+        <p>¿Desea continuar con el guardado?</p><br>
+        <button onclick="preguntaCompartir()">Sí</button>
+        <button onclick="cerrarVentanaEmergente()">No</button>
+    </div>
+</html>

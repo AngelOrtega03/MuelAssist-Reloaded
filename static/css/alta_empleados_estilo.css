@@ -1,0 +1,152 @@
+h1 {
+    font-size: 35px;
+    color: #333;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-right: 45%;
+    margin-top: 2%;
+    position: absolute;
+}
+.tabla {
+    display: flex;
+    width: 90%;
+    height: 100%;
+    justify-content: center;
+}
+.columna {
+    flex: 1;
+    margin-left: 55%;
+}
+.columna:nth-child(2) {
+    flex: 0.3;
+}
+.cajas{
+    text-align: left;
+}
+.divs{
+    display: flex;
+    justify-content: center;
+}
+input[type="text"],
+textarea {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-left: 15px;
+    font-family: 'Red Hat Display', sans-serif;
+}
+p {
+    font-family: 'Red Hat Display', sans-serif;
+}
+input[type="submit"] {
+    position: absolute;
+    display: inline-block;
+    margin-left: 190px;
+    margin-top: -90px;
+    padding: 7px 15px;
+    font-size: 16px;
+    text-decoration: none;
+    background-color: #3498db;
+    color: #fff;
+    border: 1px solid #3498db;
+    border-radius: 5px;
+    cursor: pointer;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+body{
+    background-color: #3498db;
+}
+.fondo {
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    height: 100%;
+    border-radius: 10px;
+    top: 51%; 
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    background-color: white;
+    z-index: 1;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+#popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+a.regresar {
+    margin-left: 40px; 
+    text-decoration: none;
+    color: #0077B5;
+    font-weight: bold;
+    font-size: 16px;
+    background-color: #0077B5;
+    padding: 8px 12px; 
+    border-radius: 4px; 
+    color: #fff;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+a.regresar:hover{
+    background-color: #00689e;
+}
+.guardar:hover {
+    background-color: #00689e;
+}
+.imgArch{
+    position: absolute;
+    margin-left: 10%;
+    font-family: 'Red Hat Display', sans-serif;
+}
+.contenedor-imagen {
+    width: 430px;
+    height: 570px;
+    overflow: hidden;
+    display: flex;
+    position: absolute;
+    left: 24%;
+    top: 15%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.contenedor-imagen img {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.chiqui{
+    width:60px;
+    height:25px;
+}
+
+.medio{
+    width:200px;
+    height:25px;
+}
+
+.grande{
+    width:500px;
+    height:25px;
+}
+
+.nom{
+    width:270px;
+    height:25px;
+}
+
+.txt{
+    width: 600px;
+    height: 70px;
+}

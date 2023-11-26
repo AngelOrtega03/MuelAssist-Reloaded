@@ -76,12 +76,12 @@
         </div>
 
         <!-- Selector de doctores -->
-        {% if session['idPaciente'] %}
+        {% if session['idPaciente'] or session['admin']%}
         <div>
             <label for="id_doctor">Doctor:</label>
             <select id="id_doctor" name="id_doctor" required>
                 {% for doctor in doctores %}
-                    <option value="{{ doctor.id_doctor }}">{{ doctor.nombre }}</option>
+                    <option value="{{ doctor.id_doctor }}">{{ doctor.nombre }} {{doctor.apellido}}</option>
                 {% endfor %}
             </select>
         </div>
@@ -93,7 +93,7 @@
         return render_template("agendar", msg = msg, doctores = doctores, pacientes = pacientes)
 
         -->
-        {% if session['idDoctor'] %}
+        {% if session['idDoctor'] or session['admin']%}
         <div>
             <label for="id_paciente">Paciente:</label>
             <select id="id_paciente" name="id_paciente" required>

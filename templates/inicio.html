@@ -21,8 +21,15 @@
             <a href="inicio.html" class="muelassist">Muelassist</a>
             <img src="../static/img/diente.png" id="icon">
             <div class="menu">
+                {% if session['loggedin']%}
+                <a href="{{url_for('agendar')}}">Citas</a>
+                <a href="{{url_for('expedientes')}}">Expedientes</a>
+                <a href="{{url_for('contacto')}}">Contactos</a>
+                <a href="{{url_for('perfil')}}">Perfil</a>
+                <a href="{{url_for('logout')}}">Cerrar sesion</a>
+                {% else %}
                 <a href="{{url_for('login')}}">Iniciar Sesion</a>
-                <a href="{{url_for('citas')}}">Surcursales</a>
+                {% endif %}
             </div>
         </div>        
 

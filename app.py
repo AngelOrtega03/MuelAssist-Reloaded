@@ -52,15 +52,12 @@ def start():
     if 'loggedin' not in session:
         return redirect(url_for('inicio'))
     else:
-	    return redirect(url_for('agendar'))
+	    return redirect(url_for('inicio'))
     
 #Ruta pagina de inicio
 @app.route('/inicio')
 def inicio():
-    if 'loggedin' not in session:
-        return render_template("inicio.html")
-    else:
-        return redirect(url_for('agendar'))
+    return render_template("inicio.html")
     
 # Ruta para activar la cuenta
 @app.route('/activate/<code>')
@@ -79,7 +76,7 @@ def activate_account(code):
     else:
         # Redirige a una página de error si el código no es válido
         return render_template('activation_error.html')
-    
+
 # Ruta de registro
 @app.route('/register', methods=['POST'])
 def register():
@@ -186,17 +183,17 @@ def login():
                         if account['tipo'] == 'Admin':
                             session['admin'] = True
                         elif account['tipo'] == 'Doctor':
-                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
+                            cursor.execute('SELECT id FROM doctor WHERE id_usuario = %s', (session['id'], ))
                             accountDoctor = cursor.fetchone()
                             session['idDoctor'] = accountDoctor['id']
                         elif account['tipo'] == 'Secretario':
-                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s AND verificacion = 0', (session['id'], ))
+                            cursor.execute('SELECT id FROM secretario WHERE id_usuario = %s', (session['id'], ))
                             accountSecretario = cursor.fetchone()
                             session['idSecretario'] = accountSecretario['id']
                         else:
                             session['idPaciente'] = session['id']
 
-                        return redirect(url_for('agendar'))
+                        return redirect(url_for('inicio'))
                     else:
                         msg = 'CUENTA NO ACTIVADA. Por favor, revise su correo para activar su cuenta.'
                 else:
@@ -242,7 +239,7 @@ def login():
         
         return render_template('log_in.html', msg = msg)
     else:
-        return redirect(url_for('agendar'))
+        return redirect(url_for('inicio'))
     
 # Ruta para enviar el correo electrónico de restablecimiento de contraseña
 @app.route('/forgot_password', methods=['GET', 'POST'])
@@ -441,11 +438,12 @@ def registro_secretario():
         doctores = cursor.fetchall()    
         return render_template('registerSec.html', msg = msg, doctores = doctores)
     else:
-        return redirect(url_for('agendar'))
+        return redirect(url_for('inicio'))
 
 #Ruta pagina de contactos
 @app.route('/contacto', methods =['GET', 'POST'])
 def contacto():
+    contactos = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -469,7 +467,7 @@ def visualizacioncontacto(id):
         tipoContacto = contacto['tipo']
         if 'idPaciente' in session and tipoContacto == 'Paciente':
             abort(404)
-        return render_template("contacto.html", contacto = contacto)
+        return render_template("contacto_visualizacion.html", contacto = contacto)
 
 #Ruta pagina de informacion de perfil
 @app.route('/perfil', methods =['GET', 'POST'])
@@ -527,7 +525,8 @@ def editarperfil():
             if 'file1' in request.files:
                 print('Imagen encontrada...')
                 imagen = request.files['file1']
-                path = os.path.join(app.config['UPLOAD_FOLDER'], imagen.filename)
+                file_name = generate_custom_name(imagen.filename)
+                path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
                 print(path)
                 imagen.save(path)
                 cursor.execute('UPDATE usuario SET imagen_perfil = %s WHERE id = %s', (path, session['id'],))

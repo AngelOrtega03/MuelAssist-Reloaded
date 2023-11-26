@@ -1,0 +1,81 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    font-family: 'Roboto', sans-serif;
+    background-color: #e5e4e4;
+}
+
+header{
+    background-color: #56baed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo{
+    order: 0;
+    width: 30vh;
+    height: 10vh;
+}
+
+h1 {
+    font-family: 'Roboto', sans-serif; /* Cambia la fuente según tus preferencias */
+    text-align: center;
+    flex-grow: 1;
+    margin: 0; /* Elimina el margen predeterminado del h1 */
+    font-size: 7vh;
+    color: #fff;
+}
+
+.container{
+    width: 50%;
+    margin: 0 auto;
+    background-color: #56baed;
+    border-radius: 3vh;
+    align-items: center;
+    border: 5px solid black;
+}
+
+form{
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+}
+
+form div{
+    width: 80%; /* Ajusta el ancho de cada div según tus preferencias */
+    margin: 10px; /* Añade márgenes entre los div para mejorar la legibilidad */
+    text-align: center; /* Centra el texto dentro de cada div */
+    padding: 15px; /* Añade relleno para mejorar la apariencia visual */
+    border: 2px solid #ffffff; /* Borde blanco con un grosor de 2px */
+    border-radius: 5px;
+    font-size: 25px;
+}
+
+form button {
+    width: 90%; /* Ocupa el 100% del ancho disponible */
+    margin-top: 10px; /* Añade espacio arriba del botón para separarlo de los div anteriores */
+    padding: 15px; /* Ajusta el relleno según tus preferencias */
+    border: 2px solid #000000; /* Borde blanco con un grosor de 2px */
+    border-radius: 10px; /* Agrega esquinas redondeadas para suavizar la apariencia */
+    background-color: #217a24; /* Color de fondo del botón, ajusta según tus preferencias */
+    color: white; /* Color del texto en el botón */
+    font-size: 20px;
+    cursor: pointer;
+}
+
+form input, form select{
+    font-size: 20px;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  font-size: 40px; /* Ajusta el tamaño del texto según tus preferencias */
+}

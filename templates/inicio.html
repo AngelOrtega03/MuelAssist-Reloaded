@@ -24,6 +24,7 @@
                 {% if session['loggedin']%}
                 <a href="{{url_for('agendar')}}">Citas</a>
                 <a href="{{url_for('expedientes')}}">Expedientes</a>
+                <a href="{{url_for('contacto')}}">Contactos</a>
                 <a href="{{url_for('perfil')}}">Perfil</a>
                 <a href="{{url_for('logout')}}">Cerrar sesion</a>
                 {% else %}

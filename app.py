@@ -445,6 +445,7 @@ def registro_secretario():
 #Ruta pagina de contactos
 @app.route('/contacto', methods =['GET', 'POST'])
 def contacto():
+    contactos = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -454,7 +455,7 @@ def contacto():
             tipo = request.form['tipo']
             cursor.execute('SELECT * FROM usuario WHERE nombre = %s AND tipo = %s', (nombre, tipo,))
             contactos = cursor.fetchall()
-        return render_template("contactos.html", contactos = contactos)
+        return render_template("contacto.html", contactos = contactos)
     
 #Ruta pagina de contacto especifico
 @app.route('/contacto/<id>')

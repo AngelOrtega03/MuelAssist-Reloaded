@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Listado de Expedientes</title>
+        <title>Citas</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <style>
@@ -66,24 +66,57 @@
     </head>
     <body>
         <div class="fondo">
-            {% if session['idDoctor'] %} 
-            <a class="regresar" href="{{url_for('crearexpediente')}}">Agregar expediente</a>
+            {% if session['idDoctor'] or session['idPaciente'] %} 
+            <a class="regresar" href="{{url_for('agendar')}}">Crear cita</a>
             {% endif %}
             {% if msg %}
             <p>{{msg}}</p>
-            {% endif %} 
+            {% endif %}
+            {% if citasVigentes %}
+            <h1 style="text-align: center;">CITAS VIGENTES</h1><br>
             <div id="expedientes">
-                {% for expediente in expedientes %}
-                <a href="{{url_for('visualizacion_expediente', id=expediente.id_expediente)}}">
+                {% for cita in citasVigentes %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
                 <div class="expediente" style="display: block;">
-                    <p class="datos">ID del Expediente: {{expediente.id_expediente}}</p>
-                    <p class="datos">Nombre del Paciente: {{expediente.nombre}} {{expediente.apellido}}</p>
-                    <p class="datos">Doctor: {{expediente.nombre_doctor}} {{expediente.apellido_doctor}}</p>
-                    <p class="datos">Fecha y Hora: {{expediente.fecha_creacion}}</p>
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
                 </div>
                 </a>
                 {% endfor %}
             </div>
+            {% endif %}
+            {% if citasPendientes %}
+            <h1 style="text-align: center;">CITAS PENDIENTES</h1><br>
+            <div id="expedientes">
+                {% for cita in citasPendientes %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
+                <div class="expediente" style="display: block;">
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if citasPasadas %}
+            <h1 style="text-align: center;">CITAS PASADAS</h1>
+            <div id="expedientes">
+                {% for cita in citasPasadas %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
+                <div class="expediente" style="display: block;">
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </body>
 </html>

@@ -15,7 +15,7 @@ h1 {
 }
 .columna {
     flex: 1;
-    margin-left: 55%;
+    margin-left: 30%;
 }
 .columna:nth-child(2) {
     flex: 0.3;
@@ -39,7 +39,7 @@ textarea {
 p {
     font-family: 'Red Hat Display', sans-serif;
 }
-input[type="submit"] {
+input[type="submit"], .guardar{
     position: absolute;
     display: inline-block;
     margin-left: 190px;
@@ -109,8 +109,20 @@ a.regresar:hover{
     font-family: 'Red Hat Display', sans-serif;
 }
 .contenedor-imagen {
-    width: 430px;
-    height: 570px;
+    width: 40%;
+    height: 40%;
+    overflow: hidden;
+    display: flex;
+    position: absolute;
+    left: 24%;
+    top: 15%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+.contenedor-imagen-2 {
+    width: 40%;
+    height: 70%;
     overflow: hidden;
     display: flex;
     position: absolute;

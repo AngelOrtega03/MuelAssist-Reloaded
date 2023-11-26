@@ -446,31 +446,72 @@ def registro_secretario():
 #Ruta pagina de contactos
 @app.route('/contacto', methods =['GET', 'POST'])
 def contacto():
+    msg = ''
     contactos = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
-        if request.method == 'POST' and 'nombre' in request.form and 'tipo' in request.form:
-            nombre = request.form['nombre']
+        if request.method == 'POST' and 'Busqueda' in request.form and 'tipo' in request.form:
+            busqueda = request.form['Busqueda']
             tipo = request.form['tipo']
-            cursor.execute('SELECT * FROM usuario WHERE nombre = %s AND tipo = %s', (nombre, tipo,))
+            if 'admin' in session or 'idDoctor' in session or 'idSecretario' in session:
+                if tipo == 'nombre':
+                    cursor.execute("SELECT * FROM usuario WHERE nombre = %s AND verificacion = 0", (busqueda,))
+                elif tipo == 'id':
+                    cursor.execute("SELECT * FROM usuario WHERE id = %s AND verificacion = 0", (busqueda,))
+                elif tipo == 'correo':
+                    cursor.execute("SELECT * FROM usuario WHERE correo = %s AND verificacion = 0", (busqueda,))
+                elif tipo == 'telefono':
+                    cursor.execute("SELECT * FROM usuario WHERE telefono = %s AND verificacion = 0", (busqueda,))
+            else:
+                if tipo == 'nombre':
+                    cursor.execute("SELECT * FROM usuario WHERE nombre = %s AND verificacion = 0 AND tipo <> 'Paciente'", (busqueda,))
+                elif tipo == 'id':
+                    cursor.execute("SELECT * FROM usuario WHERE id = %s AND verificacion = 0 AND tipo <> 'Paciente'", (busqueda,))
+                elif tipo == 'correo':
+                    cursor.execute("SELECT * FROM usuario WHERE correo = %s AND verificacion = 0 AND tipo <> 'Paciente'", (busqueda,))
+                elif tipo == 'telefono':
+                    cursor.execute("SELECT * FROM usuario WHERE telefono = %s AND verificacion = 0 AND tipo <> 'Paciente'", (busqueda,))
             contactos = cursor.fetchall()
-        return render_template("contacto.html", contactos = contactos)
+            if not contactos:
+                msg = "No se encontró el contacto"
+        return render_template("contacto.html", contactos = contactos, msg = msg)
     
 #Ruta pagina de contacto especifico
 @app.route('/contacto/<id>')
 def visualizacioncontacto(id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    datos_extra = ''
+    exp_lab = ''
+    ref_lab = ''
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     else:
-        cursor.execute('SELECT * FROM usuario WHERE id = %s', (id,))
+        cursor.execute('SELECT * FROM usuario WHERE id = %s AND verificacion = 0', (id,))
         contacto = cursor.fetchone()
-        tipoContacto = contacto['tipo']
-        if 'idPaciente' in session and tipoContacto == 'Paciente':
+        if contacto:
+            tipoContacto = contacto['tipo']
+            if 'idPaciente' in session and tipoContacto == 'Paciente':
+                abort(404)
+            elif tipoContacto == 'Doctor' or tipoContacto == 'Secretario':
+                if tipoContacto == 'Doctor':
+                    cursor.execute('SELECT * FROM doctor WHERE id_usuario = %s', (id,))
+                elif tipoContacto == 'Secretario':
+                    cursor.execute('SELECT * FROM SecretariosInformacionCompleta WHERE id_usuario = %s', (id,))
+                datos_extra = cursor.fetchone()
+                try:
+                    f1 = open('static/info/labexp'+str(id)+'.txt', "r")
+                    exp_lab = f1.read()
+                    f2 = open('static/info/labref'+str(id)+'.txt', "r")
+                    ref_lab = f2.read()
+                except Exception as e:
+                    print(f"No hay registros de tanto experiencias o referencias laborales: {e}")
+                    exp_lab = ''
+                    ref_lab = ''
+        else:
             abort(404)
-        return render_template("contacto_visualizacion.html", contacto = contacto)
+        return render_template("contacto_visualizacion.html", contacto = contacto, datos_extra = datos_extra, exp_lab = exp_lab, ref_lab = ref_lab)
 
 #Ruta pagina de informacion de perfil
 @app.route('/perfil', methods =['GET', 'POST'])
@@ -551,6 +592,10 @@ def editarperfil():
 #Funcion que genera nombre para imagen subida
 def generate_custom_name(original_file_name):
     return "user" +str(session['id'])+pathlib.Path(original_file_name).suffix
+
+#Funcion que genera nombre para imagen subida de expediente
+def generate_custom_name_exp(original_file_name, idExpediente):
+    return "expimg" +str(idExpediente)+pathlib.Path(original_file_name).suffix
 
 #Ruta de pagina para agendar citas
 @app.route('/citas/agendar', methods =['GET', 'POST'])
@@ -718,19 +763,19 @@ def citas():
 
 def citasPaciente(id,estado):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM cita WHERE id_paciente = %s AND estado = %s', (id, estado,))
+    cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE id_paciente = %s AND estado = %s', (id, estado,))
     resultados = cursor.fetchall()
     return resultados
 
 def citasDoctor(id,estado):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM cita WHERE id_doctor = %s AND estado = %s', (id, estado,))
+    cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE id_doctor = %s AND estado = %s', (id, estado,))
     resultados = cursor.fetchall()
     return resultados
 
 def citasSecretario(id,estado):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM cita WHERE id_secretario = %s AND estado = %s', (id, estado,))
+    cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE id_secretario = %s AND estado = %s', (id, estado,))
     resultados = cursor.fetchall()
     return resultados
 
@@ -768,22 +813,35 @@ def crearexpediente():
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     elif 'idDoctor' in session:
-        if request.method == "POST" and 'info' in request.form and 'id_paciente_1' in request.form:
+        if request.method == "POST" and 'info' in request.form and 'id_paciente_1' in request.form and 'observaciones' in request.form:
             id_paciente_seleccion = request.form['id_paciente_1']
             info = request.form['info']
+            observaciones = request.form['observaciones']
             cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s', (id_paciente_seleccion,))
             existencia = cursor.fetchone()
             if existencia:
                 print('Este usuario ya tiene un expediente registrado!')
                 msg = 'Este usuario ya tiene un expediente registrado!'
                 return redirect(url_for('crearexpediente'))
-            path = 'static/info/exp'
-            with open(path+id_paciente_seleccion+'.txt', 'w') as f:
+            path1 = 'static/info/exp'
+            with open(path1+id_paciente_seleccion+'.txt', 'w') as f:
                 f.write(str(info))
-            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info) VALUES (%s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], path+id_paciente_seleccion+'.txt',))
+            path2 = 'static/info/obs'
+            with open(path2+id_paciente_seleccion+'.txt', 'w') as f:
+                f.write(str(observaciones))
+            cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info, observacion) VALUES (%s, %s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], path1+id_paciente_seleccion+'.txt', path2+id_paciente_seleccion+'.txt',))
             mysql.connection.commit()
             cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s',(id_paciente_seleccion,))
             id_expediente = cursor.fetchone()
+            if 'archivo' in request.files:
+                print('Imagen encontrada...')
+                imagen = request.files['archivo']
+                file_name = generate_custom_name_exp(imagen.filename, id_expediente['id'])
+                path = os.path.join("static/img/expediente/", file_name)
+                print(path)
+                imagen.save(path)
+                cursor.execute('UPDATE expediente SET imagen = %s WHERE id = %s', (path, id_expediente['id'],))
+                mysql.connection.commit()
             if 'pacienteShare' in request.form:
                 cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], id_paciente_seleccion, 'VER',))
                 mysql.connection.commit()
@@ -836,7 +894,9 @@ def visualizacion_expediente(id):
         cambio_reciente = cursor.fetchone()
         f = open(expediente['info'], "r")
         contenido = f.read()
-    return render_template('expediente_visualizacion.html', cambio_reciente = cambio_reciente, expediente = expediente, contenido = contenido)
+        f = open(expediente['observacion'], "r")
+        observacion = f.read()
+    return render_template('expediente_visualizacion.html', cambio_reciente = cambio_reciente, expediente = expediente, contenido = contenido, observacion = observacion)
 
 #Ruta de edicion al expediente
 @app.route('/expediente/<id>/editar', methods =['GET', 'POST'])
@@ -859,17 +919,30 @@ def editar_expediente(id):
         expediente = cursor.fetchone()
         f = open(expediente['info'], "r")
         contenidoleer = f.read()
-        if request.method == 'POST' and 'contenido' in request.form and 'notas' in request.form:
+        f = open(expediente['observacion'], "r")
+        observacionleer = f.read()
+        if request.method == 'POST' and 'contenido' in request.form and 'observaciones' in request.form and 'notas' in request.form:
             contenidoescribir = request.form['contenido']
+            observacionesescribir = request.form['observaciones']
             notas = request.form['notas']
-            path = 'static/info/exp'
-            with open(path+str(expediente['id_paciente'])+'.txt', 'w') as f2:
+            path1 = 'static/info/exp'
+            with open(path1+str(expediente['id_paciente'])+'.txt', 'w') as f2:
                 f2.write(str(contenidoescribir))
+            path2 = 'static/info/obs'
+            with open(path2+str(expediente['id_paciente'])+'.txt', 'w') as f3:
+                f3.write(str(observacionesescribir))
+            if 'archivo' in request.files:
+                print('Imagen encontrada...')
+                imagen = request.files['archivo']
+                file_name = generate_custom_name_exp(imagen.filename, id)
+                path = os.path.join("static/img/expediente/", file_name)
+                print(path)
+                imagen.save(path)
             cursor.execute('INSERT INTO cambios(id_expediente, id_doctor, info) VALUES (%s, %s, %s)', (id, session['idDoctor'], notas,))
             mysql.connection.commit()
             print('Cambio registrado con exito!')
             return redirect(url_for('expedientes'))
-    return render_template('expediente_editar.html', expediente = expediente, contenido = contenidoleer)
+    return render_template('expediente_editar.html', expediente = expediente, contenido = contenidoleer, observacion = observacionleer)
 
 #Ruta de pagina de error
 @app.route('/error')

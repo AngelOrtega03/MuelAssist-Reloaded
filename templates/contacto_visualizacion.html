@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil</title>
+    <title>Contacto - {{contacto.nombre}} {{contacto.apellido}}</title>
     <link rel="stylesheet" href="../static/css/styles.css">
     <style>
         /* Estilos adicionales */
@@ -114,7 +114,7 @@
 
 <div class="top-bar">
     <a href="{{url_for('inicio')}}"><button style="border-radius: 50%; padding: 10px; background-color: #56baed;">&larr;</button></a>
-    <h1>Mi cuenta</h1>
+    <h1>Contacto</h1>
     <div style="width: 30px;"></div>
 </div>
 
@@ -122,27 +122,26 @@
     <div class="left-side">
         <!-- Foto de perfil -->
         <div class="profile-picture">
-            {% if perfil['imagen_perfil'] == None %}
+            {% if contacto['imagen_perfil'] == None %}
             <img src="../static/img/icono_camara.png" alt="Examinar Foto" id="profile-image">
             {% else %}
-            <img src="../{{perfil.imagen_perfil}}" alt="Examinar Foto" id="profile-image">
+            <img src="../{{contacto.imagen_perfil}}" alt="Examinar Foto" id="profile-image">
             {% endif %}
         </div>
-        <button class="appointments-button" onclick="verCitas()">Ver Citas</button>
-        <p class="profile-type">{{perfil.tipo}}</p> <!-- Cambio de tamaño de la fuente -->
+        <!--<button class="appointments-button" onclick="verCitas()">Ver Citas</button>-->
+        <p class="profile-type">{{contacto.tipo}}</p> <!-- Cambio de tamaño de la fuente -->
     </div>
     <div class="right-side">
         <p>{{msg}}</p>
-        <h1>Mira y edita tu información personal</h1>
-        <p>Nombre: {{perfil.nombre}}</p>
-        <p>Apellidos: {{perfil.apellido}}</p>
-        <p>Sexo: {{perfil.sexo}}</p>
-        <p>Fecha de Nacimiento: {{perfil.fecha_nacimiento}}</p>
-        <p>Domicilio: {{perfil.domicilio}}</p>
-        {% if session['idDoctor'] or session['idSecretario'] %}
-        {% if session['idDoctor'] %}
+        <h1>Informacion</h1>
+        <p>Nombre: {{contacto.nombre}}</p>
+        <p>Apellidos: {{contacto.apellido}}</p>
+        <p>Sexo: {{contacto.sexo}}</p>
+        <p>Fecha de Nacimiento: {{contacto.fecha_nacimiento}}</p>
+        {% if contacto['tipo'] == 'Doctor' or contacto['tipo'] == 'Secretario' %}
+        {% if contacto['tipo'] == 'Doctor' %}
         <p>Cedula: {{datos_extra.cedula}}</p>
-        {% elif session['idSecretario'] %}
+        {% elif contacto['tipo'] == 'Secretario' %}
         <p>Doctor asignado: Dr. {{datos_extra.nombre_doctor}} {{datos_extra.apellido_doctor}}</p>
         {% endif %}
         <p>RFC: {{datos_extra.rfc}}</p>
@@ -152,17 +151,8 @@
         <p>Referencia Laboral:</p>
         <p>{{ref_lab}}</p>
         {% endif %}
-        <p>Correo Electrónico: {{perfil.correo}}</p>
-        <p>Número de Teléfono: {{perfil.telefono}}</p>
-        
-        <div class="edit-buttons">
-            <a href="{{url_for('editarperfil')}}"><button>Editar información</button></a>
-            {% if perfil.borrar == 'SI' %}
-            <button onclick="show2()">Recuperar cuenta</button>
-            {% else %}
-            <button class="delete-button" onclick="show1()">Eliminar cuenta</button>
-            {% endif %}
-        </div>
+        <p>Correo Electrónico: {{contacto.correo}}</p>
+        <p>Número de Teléfono: {{contacto.telefono}}</p>
     </div>
 </div>
 

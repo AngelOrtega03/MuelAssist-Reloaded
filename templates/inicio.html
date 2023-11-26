@@ -12,7 +12,7 @@
             <ul class="menu" id="menu">
                 <li class="menu__item"><a href="{{url_for('inicio')}}" class="menu__link menu__link--select"><span>Inicio</span></a></li>
                 {% if session['loggedin'] %}
-                    <li class="menu__item"><a href="{{url_for('agendar')}}" class="menu__link"><span>Citas</span></a></li>
+                    <li class="menu__item"><a href="{{url_for('citas')}}" class="menu__link"><span>Citas</span></a></li>
                     <li class="menu__item"><a href="{{url_for('expedientes')}}" class="menu__link"><span>Expedientes</span></a></li>
                     <li class="menu__item"><a href="{{url_for('contacto')}}" class="menu__link"><span>Contactos</span></a></li>
                     <li class="menu__item"><a href="{{url_for('perfil')}}" class="menu__link"><span>Perfil</span></a></li>

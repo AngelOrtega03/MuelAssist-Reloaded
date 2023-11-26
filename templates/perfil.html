@@ -128,7 +128,7 @@
             <img src="../{{perfil.imagen_perfil}}" alt="Examinar Foto" id="profile-image">
             {% endif %}
         </div>
-        <button class="appointments-button" onclick="verCitas()">Ver Citas</button>
+        <a href="{{url_for('citas')}}"><button class="appointments-button">Ver Citas</button></a>
         <p class="profile-type">{{perfil.tipo}}</p> <!-- Cambio de tamaño de la fuente -->
     </div>
     <div class="right-side">

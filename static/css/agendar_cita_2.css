@@ -58,7 +58,7 @@ form div{
     font-size: 25px;
 }
 
-form button {
+form button, .Editar {
     width: 90%; /* Ocupa el 100% del ancho disponible */
     margin-top: 10px; /* Añade espacio arriba del botón para separarlo de los div anteriores */
     padding: 15px; /* Ajusta el relleno según tus preferencias */

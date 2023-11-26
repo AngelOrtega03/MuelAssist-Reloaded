@@ -4,15 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ver cita</title>
+    <link rel="stylesheet" href="../static/css/agendar_cita_2.css">
 </head>
 <body>
-    <h1>Detalle de la Cita</h1>
+    <header class="menu">
+        <img src="../static/img/MuelAssist.png" alt="MuelAssist" class="logo">
+        <h1>Detalle de la Cita</h1>
+    </header>
     {% if cita %}
-        <p><strong>Doctor:</strong> {{ cita.nombre_doctor }} {{cita.apellido_doctor}}</p>
-        <p><strong>Paciente:</strong> {{ cita.nombre_paciente }} {{cita.apellido_paciente}}</p>
-        <p><strong>Fecha y Hora:</strong> {{ cita.fecha_hora }}</p>
-        <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
+    <div class="container" style="text-align: center; font-size: large;">
+        <p><strong>Doctor:</strong> {{ cita.nombre_doctor }} {{cita.apellido_doctor}}</p><br><br>
+        <p><strong>Paciente:</strong> {{ cita.nombre_paciente }} {{cita.apellido_paciente}}</p><br><br>
+        <p><strong>Fecha y Hora:</strong> {{ cita.fecha_hora }}</p><br><br>
+        <p><strong>Motivo:</strong> {{ cita.motivo }}</p><br><br>
         <p><strong>Estado:</strong> {{ cita.estado }}</p>
+        {% if session['idDoctor'] %}
+        <a href="{{url_for('edicion_cita', id=cita.id_cita)}}"><button class="Editar" type="submit" style="text-align: center;">Editar cita</button></a>
+        {% endif %}
+    </div>
     {% else %}
         <p>No se encontró la cita.</p>
     {% endif %}

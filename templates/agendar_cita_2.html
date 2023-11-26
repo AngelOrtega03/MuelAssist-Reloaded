@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendar Cita</title>
+    <link rel="stylesheet" href="../static/css/agendar_cita_2.css">
+</head>
+<body>
+    <header class="menu">
+        <img src="../static/img/MuelAssist.png" alt="MuelAssist" class="logo">
+        <h1>Agendar Cita</h1>
+    </header>
+    {% if msg %}
+        <p>{{ msg }}</p>
+    {% endif %}
+    <div class="container">
+        <form action="{{url_for('agendar')}}" method="post">
+
+        <!--  este es un formulario basico sin la restrincion de la fecha actual
+            <div>
+                <label for="anio">Año:</label>
+                <input type="number" id="anio" name="anio" required>
+            </div>
+            <div>
+                <label for="mes">Mes:</label>
+                <input type="number" id="mes" name="mes" required>
+            </div>
+            <div>
+                <label for="dia">Día:</label>
+                <input type="number" id="dia" name="dia" required>
+            </div>
+            -->
+
+
+            <!-- Este formulario de fecha te permite validar el dia actual para no agendar una dia anteriror
+            
+                Segun mi logica para que funcione este formulario se le ocupa agregar mas codigo a app.py en la parte de #Ruta de agenda de citas
+                Este es lo necesario para que funcione:
+
+                Instalar esta libreria para conseguir el tiempo actual
+                from datetime import datetime
+
+                ###  se le ocuparia agregar esta linea de codigo para que pueda valiar el dia actual 
+                y esto para mandar la informacion a la base de datos fecha_actual=fecha_actual   ###
+
+                @app.route('/citas/agendar', methods=['GET', 'POST'])
+                def agendar():
+
+                    fecha_actual = datetime.now().strftime('%Y-%m-%d')
+
+                    return render_template("agendar_cita.html", fecha_actual=fecha_actual, msg=msg, doctores=doctores, pacientes=pacientes)
+
+            -->
+            <div>
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required min="{{ fecha_actual }}">
+            </div>
+
+            <div>
+                <label for="hora">Hora:</label>
+                <select id="hora" name="hora" required>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="motivo">Motivo:</label>
+                <input type="text" id="motivo" name="motivo">
+            </div>
+
+            <!-- Selector de doctores -->
+            {% if session['idPaciente'] or session['admin']%}
+            <div>
+                <label for="id_doctor">Doctor:</label>
+                <select id="id_doctor" name="id_doctor" required>
+                    {% for doctor in doctores %}
+                        <option value="{{ doctor.id_doctor }}">{{ doctor.nombre }} {{doctor.apellido}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <!-- Selector de paciente
+            
+            Segun yo esto tambien tiene que ir porque en el archivo app.py en #Ruta de agenda de citas el select tiene paciente = paciente
+            return render_template("agendar", msg = msg, doctores = doctores, pacientes = pacientes)
+
+            -->
+            {% if session['idDoctor'] or session['admin']%}
+            <div>
+                <label for="id_paciente">Paciente:</label>
+                <select id="id_paciente" name="id_paciente" required>
+                    {% for paciente in pacientes %}
+                        <option value="{{ paciente.id }}">{{ paciente.nombre }} {{paciente.apellido}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+            <button type="submit">Agendar Cita</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Cita</title>
+    <link rel="stylesheet" href="../static/css/cita_editar.css">
 </head>
 <!-- 
     Esto es lo que pienso que se le podria modifidar al app.py en la parte de # Ruta de página de edición de cita
@@ -40,49 +41,52 @@ def edicion_cita(id):
  -->
 
 <body>
-    <h1>Editar Cita</h1>
+    <header class="menu">
+        <img src="../static/img/MuelAssist.png" alt="MuelAssist" class="logo">
+        <h1>Editar Cita</h1>
+    </header>
     {% if msg %}
         <p>{{ msg }}</p>
     {% endif %}
-    <form action="{{url_for('edicion_cita', id=cita.id_cita, id_doctor=cita.id_doctor, id_paciente=cita.id_paciente)}}" method="post">
-        <div>
-            <label for="fecha">Fecha:</label>
-            <input type="date" id="fecha" name="fecha" required min="{{ fecha_actual }}" value="{{ cita.fecha_hora.strftime('%Y-%m-%d') }}">
-        </div>
-        <div>
-            <label for="hora">Hora:</label>
-            <select id="hora" name="hora" required>
-                <option value="08:00">08:00 AM</option>
-                <option value="09:00">09:00 AM</option>
-                <option value="10:00">10:00 AM</option>
-                <option value="11:00">11:00 AM</option>
-                <option value="12:00">12:00 PM</option>
-                <option value="13:00">01:00 PM</option>
-                <option value="14:00">02:00 PM</option>
-                <option value="15:00">03:00 PM</option>
-                <option value="16:00">04:00 PM</option>
-                <option value="17:00">05:00 PM</option>
-                <option value="18:00">06:00 PM</option>
-                <option value="19:00">07:00 PM</option>
-                <option value="20:00">08:00 PM</option>
-            </select>
-        </div>
-        <div>
-            <label for="motivo">Motivo:</label>
-            <input type="text" id="motivo" name="motivo" placeholder="{{cita.motivo}}" required>
-        </div>
-        {% if session['idDoctor'] or session['admin'] %}
-        <div>
-            <label for="estado">Estado:</label>
-            <select id="estado" name="estado" required>
-                <option value="Pendiente de revision">Pendiente de revision</option>
-                <option value="En proceso">En proceso</option>
-            </select>
-        </div>
-        {% endif %}
-        <div>
+    <div class="container">
+        <form action="{{url_for('edicion_cita', id=cita.id_cita, id_doctor=cita.id_doctor, id_paciente=cita.id_paciente)}}" method="post">
+            <div>
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required min="{{ fecha_actual }}" value="{{ cita.fecha_hora.strftime('%Y-%m-%d') }}">
+            </div>
+            <div>
+                <label for="hora">Hora:</label>
+                <select id="hora" name="hora" required>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                    <option value="18:00">06:00 PM</option>
+                    <option value="19:00">07:00 PM</option>
+                    <option value="20:00">08:00 PM</option>
+                </select>
+            </div>
+            <div>
+                <label for="motivo">Motivo:</label>
+                <input type="text" id="motivo" name="motivo" placeholder="{{cita.motivo}}" required>
+            </div>
+            {% if session['idDoctor'] or session['admin'] %}
+            <div>
+                <label for="estado">Estado:</label>
+                <select id="estado" name="estado" required>
+                    <option value="Pendiente de revision">Pendiente de revision</option>
+                    <option value="En proceso">En proceso</option>
+                </select>
+            </div>
+            {% endif %}
             <input type="submit" value="Actualizar Cita">
-        </div>
-    </form>
+        </form>
+    </div>
 </body>
 </html>

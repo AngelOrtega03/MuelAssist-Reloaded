@@ -58,7 +58,7 @@ def start():
 @app.route('/inicio')
 def inicio():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute('SELECT * FROM DoctoresInformacionCompleta')
+    cursor.execute('SELECT * FROM DoctoresInformacionCompleta LIMIT 3')
     doctores = cursor.fetchall()
     return render_template("inicio.html", doctores = doctores)
     

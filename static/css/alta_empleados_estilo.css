@@ -39,7 +39,7 @@ textarea {
 p {
     font-family: 'Red Hat Display', sans-serif;
 }
-input[type="submit"], .guardar{
+.guardar{
     position: absolute;
     display: inline-block;
     margin-left: 190px;

@@ -41,7 +41,7 @@ mysql = MySQL(app)
 def start():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cursor.execute("UPDATE cita SET estado = 'Terminada' WHERE estado = 'En proceso' AND fecha_hora >= %s", (fecha_actual,))
+    cursor.execute("UPDATE cita SET estado = 'Terminada' WHERE estado = 'En proceso' AND fecha_hora <= %s", (fecha_actual,))
     mysql.connection.commit()
     cursor.execute("SELECT * FROM usuario WHERE verificacion = 0 AND borrar = 'SI' AND fecha_peticion_borrar <= %s", (fecha_actual,))
     cuentas_a_borrar = cursor.fetchall()
@@ -118,6 +118,19 @@ def send_appointment_email(correo, cita):
 
     # Renderiza el contenido del archivo HTML
     email_content = render_template('appointment_email.html', cita=cita)
+
+    msg = Message(subject, sender = ('MuelAssist', ''), recipients=recipients)
+    msg.html = email_content
+    mail.send(msg)
+
+# Función para enviar el correo de creacion de expediente
+def send_expediente_email(correo, expediente):
+    subject = 'Tienes permiso para ver un expediente'
+    sender = 'tu_correo@example.com'
+    recipients = [correo]
+
+    # Renderiza el contenido del archivo HTML
+    email_content = render_template('appointment_email.html', expediente=expediente)
 
     msg = Message(subject, sender = ('MuelAssist', ''), recipients=recipients)
     msg.html = email_content
@@ -831,27 +844,36 @@ def crearexpediente():
                 f.write(str(observaciones))
             cursor.execute('INSERT INTO expediente(id_paciente, id_doctor_creador, info, observacion) VALUES (%s, %s, %s, %s)',(id_paciente_seleccion, session['idDoctor'], path1+id_paciente_seleccion+'.txt', path2+id_paciente_seleccion+'.txt',))
             mysql.connection.commit()
-            cursor.execute('SELECT * FROM expediente WHERE id_paciente = %s',(id_paciente_seleccion,))
+            cursor.execute('SELECT * FROM ExpedientesInformacionCompleta WHERE id_paciente = %s',(id_paciente_seleccion,))
             id_expediente = cursor.fetchone()
             if 'archivo' in request.files:
                 print('Imagen encontrada...')
                 imagen = request.files['archivo']
-                file_name = generate_custom_name_exp(imagen.filename, id_expediente['id'])
+                file_name = generate_custom_name_exp(imagen.filename, id_expediente['id_expediente'])
                 path = os.path.join("static/img/expediente/", file_name)
                 print(path)
                 imagen.save(path)
-                cursor.execute('UPDATE expediente SET imagen = %s WHERE id = %s', (path, id_expediente['id'],))
+                cursor.execute('UPDATE expediente SET imagen = %s WHERE id = %s', (path, id_expediente['id_expediente'],))
                 mysql.connection.commit()
             if 'pacienteShare' in request.form:
-                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], id_paciente_seleccion, 'VER',))
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id_expediente'], id_paciente_seleccion, 'VER',))
                 mysql.connection.commit()
+                cursor.execute('SELECT * FROM usuario WHERE id = %s',(id_paciente_seleccion,))
+                correo = cursor.fetchone()
+                send_expediente_email(str(correo['correo']), id_expediente)
             if 'secretarioShare' in request.form:
-                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], request.form['secretarioShare'], 'VER',))
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id_expediente'], request.form['secretarioShare'], 'VER',))
                 mysql.connection.commit()
+                cursor.execute('SELECT * FROM usuario WHERE id = %s',(request.form['secretarioShare'],))
+                correo = cursor.fetchone()
+                send_expediente_email(str(correo['correo']), id_expediente)
             if 'id_usuario_compartir' in request.form and 'privilegios' in request.form:
                 id_usuario_compartir = request.form['id_usuario_compartir']
                 privilegios = request.form['privilegios']
-                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id'], id_usuario_compartir, privilegios,))
+                cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id_expediente'], id_usuario_compartir, privilegios,))
+                cursor.execute('SELECT * FROM usuario WHERE id = %s',(id_usuario_compartir,))
+                correo = cursor.fetchone()
+                send_expediente_email(str(correo['correo']), id_expediente)
             print('Expediente registrado con exito!')
             msg = 'Expediente registrado con exito!'
     else:

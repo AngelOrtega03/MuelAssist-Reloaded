@@ -41,7 +41,7 @@
                 </div>
             </div>
             {% if session['idDoctor'] %}
-            <a href="{{url_for('editar_expediente', id = expediente.id_expediente)}}"><input type="submit" value="Editar expediente"/></a><br>
+            <a href="{{url_for('editar_expediente', id = expediente.id_expediente)}}"><input type="button" class="guardar" value="Editar expediente"/></a><br>
             {% endif %}             
         </div>
        

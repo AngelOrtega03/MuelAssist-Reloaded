@@ -1,26 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ver cita</title>
-    <link rel="stylesheet" href="../static/css/cita.css">
-</head>
-<body>
-    <header class="menu">
-        <img src="../static/img/MuelAssist.png" alt="MuelAssist" class="logo">
-        <h1>Detalle de la Cita</h1>
-    </header>
-    <div>
-        {% if cita %}
-            <p><strong>Doctor:</strong> {{ cita.nombre_doctor }} {{cita.apellido_doctor}}</p>
-            <p><strong>Paciente:</strong> {{ cita.nombre_paciente }} {{cita.apellido_paciente}}</p>
-            <p><strong>Fecha y Hora:</strong> {{ cita.fecha_hora }}</p>
-            <p><strong>Motivo:</strong> {{ cita.motivo }}</p>
-            <p><strong>Estado:</strong> {{ cita.estado }}</p>
-        {% else %}
-            <p class="error">No se encontró la cita.</p>
-        {% endif %}
-    </div>
-</body>
+    <head>
+        <title>Citas</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <style>
+            #expedientes {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                justify-content: center;
+            }
+            .expediente:hover {
+                transform: scale(1.1);
+                background-color: #80BFE9;
+                border-color: #67B2E4;
+            }
+            .expediente {
+                border: 1px solid #ccc;
+                
+                padding: 10px;
+                width: 500px;
+                cursor: pointer;
+                align-items: center; /* Centra horizontalmente */
+                justify-content: center; /* Centra verticalmente */
+                margin-top: 40px;
+                transition: transform 0.3s ease;
+                box-sizing: border-box; 
+                background-color: #9ACCED;
+            }
+            .datos{
+                font-family: 'Red Hat Display', sans-serif;
+                font-style: italic;
+            }
+            body{
+                background-color: #3498db;
+            }
+            .fondo {
+                position: absolute;
+                justify-content: center;
+                align-items: center;
+                width: 80%;
+                height: 100%;
+                border-radius: 10px;
+                top: 52%; 
+                left: 50%; 
+                transform: translate(-50%, -50%);
+                background-color: white;
+                z-index: 1;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+            a.regresar {
+                margin-left: 40px; 
+                text-decoration: none;
+                color: #0077B5;
+                font-weight: bold;
+                font-size: 16px;
+                background-color: #0077B5;
+                padding: 8px 12px; 
+                border-radius: 4px; 
+                color: #fff;
+                transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fondo">
+            {% if session['idDoctor'] or session['idPaciente'] %} 
+            <a class="regresar" href="{{url_for('agendar')}}">Crear cita</a>
+            {% endif %}
+            {% if msg %}
+            <p>{{msg}}</p>
+            {% endif %}
+            {% if citasVigentes %}
+            <h1 style="text-align: center;">CITAS VIGENTES</h1><br>
+            <div id="expedientes">
+                {% for cita in citasVigentes %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
+                <div class="expediente" style="display: block;">
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if citasPendientes %}
+            <h1 style="text-align: center;">CITAS PENDIENTES</h1><br>
+            <div id="expedientes">
+                {% for cita in citasPendientes %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
+                <div class="expediente" style="display: block;">
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if citasPasadas %}
+            <h1 style="text-align: center;">CITAS PASADAS</h1>
+            <div id="expedientes">
+                {% for cita in citasPasadas %}
+                <a href="{{url_for('cita_individual', id=cita.id_cita)}}">
+                <div class="expediente" style="display: block;">
+                    <p class="datos">ID de cita: {{cita.id_cita}}</p>
+                    <p class="datos">Nombre del Paciente: {{cita.nombre_paciente}} {{cita.apellido_paciente}}</p>
+                    <p class="datos">Doctor: {{cita.nombre_doctor}} {{cita.apellido_doctor}}</p>
+                    <p class="datos">Fecha y Hora: {{cita.fecha_hora}}</p>
+                </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </body>
 </html>

@@ -18,7 +18,7 @@
         <p><strong>Fecha y Hora:</strong> {{ cita.fecha_hora }}</p><br><br>
         <p><strong>Motivo:</strong> {{ cita.motivo }}</p><br><br>
         <p><strong>Estado:</strong> {{ cita.estado }}</p>
-        {% if session['idDoctor'] %}
+        {% if session['idDoctor'] and cita['estado'] != 'Terminada' %}
         <a href="{{url_for('edicion_cita', id=cita.id_cita)}}"><button class="Editar" type="submit" style="text-align: center;">Editar cita</button></a>
         {% endif %}
     </div>

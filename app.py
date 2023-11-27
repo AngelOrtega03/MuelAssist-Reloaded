@@ -130,7 +130,7 @@ def send_expediente_email(correo, expediente):
     recipients = [correo]
 
     # Renderiza el contenido del archivo HTML
-    email_content = render_template('appointment_email.html', expediente=expediente)
+    email_content = render_template('expediente_email.html', expediente=expediente)
 
     msg = Message(subject, sender = ('MuelAssist', ''), recipients=recipients)
     msg.html = email_content
@@ -643,7 +643,7 @@ def agendar():
             motivo = request.form['motivo']
             if 'id_doctor' in request.form:
                 id_doctor = request.form['id_doctor']
-            elif 'id_paciente' in request.form:
+            if 'id_paciente' in request.form:
                 id_paciente = request.form['id_paciente']
             cursor.execute('SELECT * FROM cita WHERE (id_doctor = %s OR id_paciente = %s) AND fecha_hora = %s',(id_doctor, id_paciente, fecha_hora,))
             existencia = cursor.fetchone()
@@ -878,6 +878,7 @@ def crearexpediente():
                 id_usuario_compartir = request.form['id_usuario_compartir']
                 privilegios = request.form['privilegios']
                 cursor.execute('INSERT INTO permisos_expediente(id_expediente, id_usuario, tipo_permiso) VALUES (%s, %s, %s)', (id_expediente['id_expediente'], id_usuario_compartir, privilegios,))
+                mysql.connection.commit()
                 cursor.execute('SELECT * FROM usuario WHERE id = %s',(id_usuario_compartir,))
                 correo = cursor.fetchone()
                 send_expediente_email(str(correo['correo']), id_expediente)

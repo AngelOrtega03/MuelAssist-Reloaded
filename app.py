@@ -735,6 +735,7 @@ def edicion_cita(id):
 #Ruta de agenda de citas
 @app.route('/citas')
 def citas():
+    msg = ''
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     if 'loggedin' not in session:
         return redirect(url_for('login'))
@@ -772,6 +773,12 @@ def citas():
                 citasPendientes = citasSecretario(id,'Pendiente de revision')
                 citasVigentes = citasSecretario(id,'En proceso')
                 citasPasadas = citasSecretario(id,'Terminada')
+        cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE estado = %s', ('Pendiente de revision',))
+        citasPendientes = cursor.fetchall()
+        cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE estado = %s', ('En proceso',))
+        citasVigentes = cursor.fetchall()
+        cursor.execute('SELECT * FROM CitaInformacionCompleta WHERE estado = %s', ('Terminada',))
+        citasPasadas = cursor.fetchall()
     return render_template("citas.html", citasVigentes = citasVigentes, citasPendientes = citasPendientes, citasPasadas = citasPasadas)
 
 def citasPaciente(id,estado):

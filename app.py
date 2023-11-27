@@ -876,10 +876,10 @@ def visualizacion_expediente(id):
     if 'loggedin' not in session:
         return redirect(url_for('login'))
     elif 'idPaciente' in session or 'idDoctor' in session or 'idSecretario' in session:
-        cursor.execute('SELECT id_usuario FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s', (id, session['id'],))
+        cursor.execute('SELECT * FROM permisos_expediente WHERE id_expediente = %s AND id_usuario = %s', (id, session['id'],))
         permiso = cursor.fetchone()
         if 'idDoctor' in session:
-            cursor.execute('SELECT id_paciente FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
+            cursor.execute('SELECT * FROM expediente WHERE id = %s AND id_doctor_creador = %s', (id, session['idDoctor'],))
             creador = cursor.fetchone()
             if creador:
                 flag = True
